@@ -72,4 +72,4 @@ help:
 	@echo "\tctags   - creates tags for all files"
 	@echo "\tformat  - runs clang-format for all source files"
 	@echo "\ttidy    - runs clang-tidy for all source files"
-	@echo "\tdoxygen - cr
+	@echo "\tdoxygen - creates documentation using doxygen"
