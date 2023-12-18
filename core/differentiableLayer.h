@@ -27,3 +27,6 @@ class DifferentiableLayer : public Layer
 };
 
 }  // namespace core
+}  // namespace graphdl
+
+#endif  // GRAPHDL_CORE_DIFFERENTIABLE_LAYER_H_

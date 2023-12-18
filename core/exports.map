@@ -1,0 +1,40 @@
+{
+global:
+    extern "C++" {
+        graphdl::createGraph*;
+        graphdl::setDefaultGraph*;
+        graphdl::getDefaultGraph*;
+        graphdl::initializeGraph*;
+        graphdl::createInput*;
+        graphdl::createWeights*;
+        graphdl::constantInitializer*;
+        graphdl::uniformInitializer*;
+        graphdl::normalInitializer*;
+        graphdl::eval*;
+        graphdl::gradients*;
+        graphdl::constant*;
+        graphdl::scalar*;
+        graphdl::add*;
+        graphdl::operator*;
+        graphdl::sub*;
+        graphdl::mul*;
+        graphdl::div*;
+        graphdl::matmul*;
+        graphdl::relu*;
+        graphdl::sigmoid*;
+        graphdl::tanh*;
+        graphdl::square*;
+        graphdl::abs*;
+        graphdl::neg*;
+        graphdl::reciprocal*;
+        graphdl::log*;
+        graphdl::sqrt*;
+        graphdl::exp*;
+        graphdl::leaky_relu*;
+        graphdl::relu6*;
+        graphdl::elu*;
+        graphdl::softplus*;
+        graphdl::softsign*;
+        graphdl::assign*;
+        graphdl::reduceSum*;
+        graphdl::reduceMax
