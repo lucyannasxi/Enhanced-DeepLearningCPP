@@ -54,4 +54,36 @@ GradientBuilder::TensorMap GradientBuilder::createGradients()
     calculateGradientsForTensor(mTensor);
 
     TensorMap gradients;
-   
+    for (const Tensor::SPtr& weights : mWeights)
+    {
+        if (mCalculatedTensors.count(weights) == 0)
+        {
+            Tensor::SPtr nullGradient =
+                constant(0., weights->getShape(), weights->getType());
+            mCalculatedTensors.insert({weights, nullGradient});
+        }
+        gradients.insert({weights, mCalculatedTensors[weights]});
+    }
+    return gradients;
+}
+
+void GradientBuilder::modifyTensorGradient(const Tensor::SPtr& tensor,
+                                           const Tensor::SPtr& tensorGrad)
+{
+    if (mTensorGradients.count(tensor) == 0)
+        mTensorGradients.insert({tensor, {}});
+    mTensorGradients[tensor].push_back(tensorGrad);
+
+    if (mGradientsToCalc[tensor].empty())
+        mCalculatedTensors[tensor] = core::addN(mTensorGradients[tensor]);
+}
+
+void GradientBuilder::calculateGradientsForTensor(const Tensor::SPtr& tensor)
+{
+    if (!mGradientsToCalc[tensor].empty()) return;
+    Tensor::SPtr tensorGrad = mCalculatedTensors[tensor];
+
+    Layer::SPtr layer = tensor->getLayer();
+    if (layer->hasGradient())
+    {
+        std::vector<Tensor::SPtr> input
