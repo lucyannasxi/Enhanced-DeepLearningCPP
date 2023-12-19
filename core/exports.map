@@ -37,4 +37,26 @@ global:
         graphdl::softsign*;
         graphdl::assign*;
         graphdl::reduceSum*;
-        graphdl::reduceMax
+        graphdl::reduceMax*;
+        graphdl::reduceMean*;
+        graphdl::reduceMin*;
+        graphdl::addN*;
+        graphdl::group*;
+        graphdl::reshape*;
+        graphdl::maxPool2D*;
+        graphdl::avgPool2D*;
+        graphdl::conv2D*;
+        graphdl::nhwc2nchw*;
+        graphdl::nchw2nhwc*;
+        graphdl::softmax*;
+        graphdl::softmax_c*;
+        graphdl::batchNorm*;
+        graphdl::softmax_cross_entropy_with_logits*;
+        graphdl::sigmoid_cross_entropy_with_logits*;
+        graphdl::train::gradientDescent*;
+        graphdl::train::momentum*;
+        graphdl::train::adam*;
+        graphdl::train::adagrad*;
+    };
+local: *;
+};
