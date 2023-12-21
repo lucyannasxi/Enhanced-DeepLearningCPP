@@ -115,4 +115,11 @@ std::map<ITensorPtr, ITensorPtr> gradients(const ITensorPtr& iTensor)
     std::map<ITensorPtr, ITensorPtr> rGrads;
     for (auto pair : core::getDefaultGraph()->getWeights())
     {
-        core::Tensor::SPtr w = pair.
+        core::Tensor::SPtr w = pair.second;
+        ITensorPtr aWeights = makeAbstractTensor(w);
+        rGrads[aWeights] = makeAbstractTensor(grads[w]);
+    }
+    return rGrads;
+}
+
+}  // namespace graphdl
