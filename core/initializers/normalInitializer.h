@@ -1,0 +1,1 @@
+#ifndef GRAPHDL_CORE_INITIALIZ
