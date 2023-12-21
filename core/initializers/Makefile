@@ -18,4 +18,34 @@ CFLAGS_D=$(COMMON_CFLAGS) -g
 
 all: release debug
 
-release: $(OBJ
+release: $(OBJS_R)
+debug: $(OBJS_D)
+
+#### COMPILING
+
+$(OUTDIR_R)/%.o: %.cpp $(CPP_HEADERS) | $(OUTDIR_R)
+	@echo "Compiling release: $<"
+	@$(CC) -c -o $@ $(CFLAGS_R) $<
+
+$(OUTDIR_D)/%.o: %.cpp $(CPP_HEADERS) | $(OUTDIR_D)
+	@echo "Compiling debug: $<"
+	@$(CC) -c -o $@ $(CFLAGS_D) $<
+
+#### DIRECTORIES
+
+$(OUTDIR_R):
+	@mkdir -p $@
+
+$(OUTDIR_D):
+	@mkdir -p $@
+
+#### clang-format
+format:
+	$(CLANG_FORMAT) $(CLANG_FORMAT_ARGS) $(CPP_SOURCES) $(CPP_HEADERS)
+
+#### clang-tidy
+tidy: $(TIDY_TARGETS)
+
+.tidy_%: %.cpp $(CPP_HEADERS)
+	$(CLANG_TIDY_EXEC) --fix $< -quiet -- $(CLANG_TIDY_INCLUDES) $(CLANG_TIDY_ARGS)
+	@touch $@
