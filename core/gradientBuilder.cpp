@@ -86,4 +86,33 @@ void GradientBuilder::calculateGradientsForTensor(const Tensor::SPtr& tensor)
     Layer::SPtr layer = tensor->getLayer();
     if (layer->hasGradient())
     {
-        std::vector<Tensor::SPtr> input
+        std::vector<Tensor::SPtr> inputs = layer->getInputs();
+        std::map<Tensor::SPtr, Tensor::SPtr> inputGrads =
+            layer->gradients(tensor, tensorGrad);
+
+        for (const Tensor::SPtr& in : inputs)
+        {
+            mGradientsToCalc[in].erase(tensor);
+            modifyTensorGradient(in, inputGrads[in]);
+            calculateGradientsForTensor(in);
+        }
+    }
+}
+
+}  // namespace core
+
+std::map<ITensorPtr, ITensorPtr> gradients(const ITensorPtr& iTensor)
+{
+    core::AbstractTensor::Ptr aTensor = core::castITensorPtr(iTensor);
+    std::vector<core::Tensor::SPtr> weights;
+    weights.reserve(core::getDefaultGraph()->getWeights().size());
+    for (auto pair : core::getDefaultGraph()->getWeights())
+        weights.push_back(pair.second);
+    core::GradientBuilder builder(aTensor->get(), weights);
+    core::GradientBuilder::TensorMap grads = builder.createGradients();
+
+    // cast all Tensor::SPtr to ITensorPtr
+    std::map<ITensorPtr, ITensorPtr> rGrads;
+    for (auto pair : core::getDefaultGraph()->getWeights())
+    {
+        core::Tensor::SPtr w = pair.
