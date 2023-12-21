@@ -15,4 +15,18 @@ class ConstantInitializer : public Initializer
     ConstantInitializer(float value);
 
   private:
- 
+    void initHost(float* memory, const TensorShape& shape) override;
+
+    void initDevice(float* memory, const TensorShape& shape) override;
+
+    float mValue;
+};
+
+}  // namespace initializers
+
+initializers::Initializer::SPtr constantInitializer(float value);
+
+}  // namespace core
+}  // namespace graphdl
+
+#endif  // GRAPHDL_CORE_INITIALIZERS_CONSTANT_H_
