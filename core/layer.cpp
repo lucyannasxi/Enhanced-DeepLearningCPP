@@ -63,4 +63,28 @@ void Layer::eval(const InputDict& inputDict)
         std::vector<float*> inputs;
         for (const auto& in : mInputs)
         {
-       
+            Tensor::SPtr tensor = in.lock();
+            tensor->eval(inputDict);
+            inputs.push_back(tensor->getMemory().getValues());
+        }
+
+        std::vector<float*> outputs;
+        for (const auto& out : mOutputs)
+            outputs.push_back(out->getMemory().getValues());
+
+        // calculate actual operation
+        execute(inputs, outputs, inputDict);
+        mIsEvaluated = true;
+    }
+}
+
+void Layer::reset()
+{
+    mIsEvaluated = false;
+    for (const Tensor::SPtr& output : mOutputs) output->reset();
+}
+
+Layer::~Layer() = default;
+
+}  // namespace core
+}  // namespace graphdl
