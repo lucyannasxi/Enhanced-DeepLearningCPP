@@ -76,4 +76,24 @@ void runActivationHost(const float* x, float* y, size_t size, Activation op);
 
 void runActivationGradientHost(const float* x, const float* y,
                                const float* yGrad, float* xGrad, size_t size,
-           
+                               Activation op);
+
+}  // namespace layers
+
+Tensor::SPtr createActivation(Tensor::SPtr, layers::Activation);
+
+Tensor::SPtr relu(Tensor::SPtr);
+Tensor::SPtr sigmoid(Tensor::SPtr);
+Tensor::SPtr tanh(Tensor::SPtr);
+Tensor::SPtr square(Tensor::SPtr);
+Tensor::SPtr abs(Tensor::SPtr);
+Tensor::SPtr neg(Tensor::SPtr);
+Tensor::SPtr reciprocal(Tensor::SPtr);
+Tensor::SPtr log(Tensor::SPtr);
+Tensor::SPtr sqrt(Tensor::SPtr);
+Tensor::SPtr exp(Tensor::SPtr);
+
+}  // namespace core
+}  // namespace graphdl
+
+#endif  // GRAPHDL_CORE_LAYERS_ACTIVATION_H_
