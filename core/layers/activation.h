@@ -43,4 +43,37 @@ class ActivationLayer : public DifferentiableLayer
                  const InputDict& inputDict) override;
 
     Activation mOp;
-    std::function<float(float)>
+    std::function<float(float)> mFun;
+};
+
+class ActivationGradientLayer : public Layer
+{
+  public:
+    ActivationGradientLayer(ID, const Tensor::SPtr&, const Tensor::SPtr&,
+                            const Tensor::SPtr&, Activation);
+
+  private:
+    void execute(const std::vector<float*>& inputs,
+                 const std::vector<float*>& outputs,
+                 const InputDict& inputDict) override;
+
+    Activation mOp;
+    std::function<float(float, float)> mFun;
+};
+
+#ifdef CUDA_AVAILABLE
+namespace cuda
+{
+void runActivationDevice(const float* x, float* y, size_t size, Activation op);
+
+void runActivationGradientDevice(const float* x, const float* y,
+                                 const float* yGrad, float* xGrad, size_t size,
+                                 Activation op);
+}  // namespace cuda
+#endif
+
+void runActivationHost(const float* x, float* y, size_t size, Activation op);
+
+void runActivationGradientHost(const float* x, const float* y,
+                               const float* yGrad, float* xGrad, size_t size,
+           
