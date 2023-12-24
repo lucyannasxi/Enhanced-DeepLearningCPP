@@ -149,4 +149,38 @@ void BatchNormLayer::execute(const std::vector<float*>& inputs,
     float* alpha = inputs[1];
     float* beta = inputs[2];
     float* mean = mMean.getValues();
-    float* stddev = mStddev.get
+    float* stddev = mStddev.getValues();
+    float* y = outputs[0];
+
+    size_t size = getInputs()[0]->getShape().getCount();
+    size_t batchSize = getBatchSize(getInputs()[0], mNumAxes);
+
+    if (getInputs()[0]->getType() == MemoryType::kHOST_MEMORY)
+        runBatchNormHost(x, alpha, beta, y, mean, stddev, size, batchSize);
+#ifdef CUDA_AVAILABLE
+    else
+        cuda::runBatchNormDevice(x, alpha, beta, y, mean, stddev, size,
+                                 batchSize);
+#endif
+}
+
+void BatchNormLayer::initialize()
+{
+    mMean.allocate();
+    mStddev.allocate();
+}
+
+BatchNormLayer::~BatchNormLayer()
+{
+    mMean.free();
+    mStddev.free();
+}
+
+BatchNormGradientLayer::BatchNormGradientLayer(
+    ID id, const Tensor::SPtr& tensor, const Tensor::SPtr& alpha,
+    const Tensor::SPtr& beta, const Tensor::SPtr& out,
+    const Tensor::SPtr& outGrad, int numAxes, Memory<float>* mean,
+    Memory<float>* stddev)
+    : Layer(id, {tensor, alpha, beta, out, outGrad},
+            {createTensor("", tensor->getShape(), tensor->getType()),
+             createTensor("", alpha->get
