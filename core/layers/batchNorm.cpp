@@ -52,4 +52,40 @@ void runBatchNormHost(const float* x, const float* alpha, const float* beta,
         float val = 0.;
         for (int j = 0; j < batchSize; ++j)
         {
-            float f = x[j * stride + i] - mean
+            float f = x[j * stride + i] - mean[i];
+            val += f * f;
+        }
+        stddev[i] = val / float(batchSize);
+    }
+
+    for (int i = 0; i < stride; ++i)
+    {
+        for (int j = 0; j < batchSize; ++j)
+        {
+            float val = x[j * stride + i] - mean[i];
+            val /= std::sqrt(stddev[i] + EPS);
+            val *= alpha[i];
+            val += beta[i];
+            y[j * stride + i] = val;
+        }
+    }
+}
+
+void runBatchNormGradientHost(const float* x, const float* alpha,
+                              const float* beta, const float* y,
+                              const float* yGrad, const float* mean,
+                              const float* stddev, float* xGrad,
+                              float* alphaGrad, float* betaGrad, size_t size,
+                              size_t batchSize)
+{
+    size_t stride = size / batchSize;
+
+    // betaGrad
+    for (int i = 0; i < stride; ++i)
+    {
+        float val = 0.;
+        for (int j = i; j < size; j += stride) val += yGrad[j];
+        betaGrad[i] = val;
+    }
+
+    
