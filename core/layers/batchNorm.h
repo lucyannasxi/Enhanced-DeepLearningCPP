@@ -66,3 +66,23 @@ namespace cuda
 {
 void runBatchNormDevice(const float* x, const float* alpha, const float* beta,
                         float* y, float* mean, float* stddev, size_t size,
+                        size_t batchSize);
+
+void runBatchNormGradientDevice(const float* x, const float* alpha,
+                                const float* beta, const float* y,
+                                const float* yGrad, const float* mean,
+                                const float* stddev, float* xGrad,
+                                float* alphaGrad, float* betaGrad, size_t size,
+                                size_t batchNorm);
+}  // namespace cuda
+#endif
+
+}  // namespace layers
+
+Tensor::SPtr batchNorm(const Tensor::SPtr& tensor, const Tensor::SPtr& alpha,
+                       const Tensor::SPtr& beta, int numAxes);
+
+}  // namespace core
+}  // namespace graphdl
+
+#endif  // GRAPHDL_CORE_LAYERS_BATCH_NORM_H_
