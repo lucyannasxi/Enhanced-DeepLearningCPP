@@ -119,4 +119,34 @@ BatchNormLayer::BatchNormLayer(ID id, const Tensor::SPtr& tensor,
           id, {tensor, alpha, beta},
           {createTensor("", tensor->getShape(), tensor->getType())}),
       mNumAxes(numAxes),
-      mMean(tensor->getType(), getFeatureSize(tensor, 
+      mMean(tensor->getType(), getFeatureSize(tensor, numAxes)),
+      mStddev(tensor->getType(), getFeatureSize(tensor, numAxes))
+{
+}
+
+Layer::TensorMap BatchNormLayer::gradients(Tensor::SPtr out,
+                                           Tensor::SPtr outGrad)
+{
+    assert(mOutputs[0] == out);
+
+    Tensor::SPtr tensor = getInputs()[0];
+    Tensor::SPtr alpha = getInputs()[1];
+    Tensor::SPtr beta = getInputs()[2];
+
+    Layer::SPtr layer = createLayer<BatchNormGradientLayer>(
+        tensor, alpha, beta, out, outGrad, mNumAxes, &mMean, &mStddev);
+
+    return {{tensor, layer->getOutputs()[0]},
+            {alpha, layer->getOutputs()[1]},
+            {beta, layer->getOutputs()[2]}};
+}
+
+void BatchNormLayer::execute(const std::vector<float*>& inputs,
+                             const std::vector<float*>& outputs,
+                             const InputDict& /*inputDict*/)
+{
+    float* x = inputs[0];
+    float* alpha = inputs[1];
+    float* beta = inputs[2];
+    float* mean = mMean.getValues();
+    float* stddev = mStddev.get
