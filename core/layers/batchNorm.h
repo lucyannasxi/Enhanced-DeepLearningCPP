@@ -38,4 +38,31 @@ class BatchNormGradientLayer : public Layer
                            const Tensor::SPtr& alpha, const Tensor::SPtr& beta,
                            const Tensor::SPtr& out, const Tensor::SPtr& outGrad,
                            int numAxes, Memory<float>* mean,
-          
+                           Memory<float>* stddev);
+
+  private:
+    void execute(const std::vector<float*>& inputs,
+                 const std::vector<float*>& outputs,
+                 const InputDict& inputDict) override;
+
+    int mNumAxes;
+    Memory<float>* mMean;
+    Memory<float>* mStddev;
+};
+
+void runBatchNormHost(const float* x, const float* alpha, const float* beta,
+                      float* y, float* mean, float* stddev, size_t size,
+                      size_t batchSize);
+
+void runBatchNormGradientHost(const float* x, const float* alpha,
+                              const float* beta, const float* y,
+                              const float* yGrad, const float* mean,
+                              const float* stddev, float* xGrad,
+                              float* alphaGrad, float* betaGrad, size_t size,
+                              size_t batchSize);
+
+#ifdef CUDA_AVAILABLE
+namespace cuda
+{
+void runBatchNormDevice(const float* x, const float* alpha, const float* beta,
+                        float* y, float* mean, float* stddev, size_t size,
