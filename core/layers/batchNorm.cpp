@@ -88,4 +88,35 @@ void runBatchNormGradientHost(const float* x, const float* alpha,
         betaGrad[i] = val;
     }
 
-    
+    // alphaGrad
+    for (int i = 0; i < stride; ++i)
+    {
+        float val = 0.;
+        for (int j = i; j < size; j += stride) val += yGrad[j] * y[j];
+        alphaGrad[i] = (val - betaGrad[i] * beta[i]) / alpha[i];
+    }
+
+    // xGrad
+    for (int i = 0; i < stride; ++i)
+    {
+        float val = -betaGrad[i] * mean[i];
+        for (int j = i; j < size; j += stride) val += yGrad[j] * x[j];
+
+        for (int j = i; j < size; j += stride)
+        {
+            xGrad[j] = yGrad[j] - betaGrad[i] / float(batchSize) -
+                       0.5 * (x[j] - mean[i]) * val / (stddev[i] + EPS);
+            xGrad[j] /= std::sqrt(stddev[i] + EPS);
+            xGrad[j] *= alpha[i];
+        }
+    }
+}
+
+BatchNormLayer::BatchNormLayer(ID id, const Tensor::SPtr& tensor,
+                               const Tensor::SPtr& alpha,
+                               const Tensor::SPtr& beta, int numAxes)
+    : DifferentiableLayer(
+          id, {tensor, alpha, beta},
+          {createTensor("", tensor->getShape(), tensor->getType())}),
+      mNumAxes(numAxes),
+      mMean(tensor->getType(), getFeatureSize(tensor, 
