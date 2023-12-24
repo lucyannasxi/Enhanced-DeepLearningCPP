@@ -212,4 +212,36 @@ void BatchNormGradientLayer::execute(const std::vector<float*>& inputs,
     if (getInputs()[0]->getType() == MemoryType::kHOST_MEMORY)
         runBatchNormGradientHost(x, alpha, beta, y, yGrad, mean, stddev, xGrad,
                                  alphaGrad, betaGrad, size, batchSize);
-#ifdef CUDA_AVAI
+#ifdef CUDA_AVAILABLE
+    else
+        cuda::runBatchNormGradientDevice(x, alpha, beta, y, yGrad, mean, stddev,
+                                         xGrad, alphaGrad, betaGrad, size,
+                                         batchSize);
+#endif
+}
+
+}  // namespace layers
+
+Tensor::SPtr batchNorm(const Tensor::SPtr& tensor, const Tensor::SPtr& alpha,
+                       const Tensor::SPtr& beta, int numAxes)
+{
+    if (numAxes <= 0) numAxes = tensor->getShape().size();
+
+    Layer::SPtr layer =
+        createLayer<layers::BatchNormLayer>(tensor, alpha, beta, numAxes);
+
+    return layer->getOutputs()[0];
+}
+
+}  // namespace core
+
+ITensorPtr batchNorm(const ITensorPtr& tensor, const ITensorPtr& alpha,
+                     const ITensorPtr& beta, int numAxes)
+{
+    core::Tensor::SPtr t = core::castITensorPtr(tensor)->get();
+    core::Tensor::SPtr a = core::castITensorPtr(alpha)->get();
+    core::Tensor::SPtr b = core::castITensorPtr(beta)->get();
+    return core::makeAbstractTensor(core::batchNorm(t, a, b, numAxes));
+}
+
+}  // namespace graphdl
