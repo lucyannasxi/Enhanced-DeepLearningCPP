@@ -183,4 +183,33 @@ BatchNormGradientLayer::BatchNormGradientLayer(
     Memory<float>* stddev)
     : Layer(id, {tensor, alpha, beta, out, outGrad},
             {createTensor("", tensor->getShape(), tensor->getType()),
-             createTensor("", alpha->get
+             createTensor("", alpha->getShape(), alpha->getType()),
+             createTensor("", beta->getShape(), beta->getType())}),
+      mNumAxes(numAxes),
+      mMean(mean),
+      mStddev(stddev)
+{
+}
+
+void BatchNormGradientLayer::execute(const std::vector<float*>& inputs,
+                                     const std::vector<float*>& outputs,
+                                     const InputDict& /*inputDict*/)
+{
+    float* x = inputs[0];
+    float* alpha = inputs[1];
+    float* beta = inputs[2];
+    float* y = inputs[3];
+    float* yGrad = inputs[4];
+    float* xGrad = outputs[0];
+    float* alphaGrad = outputs[1];
+    float* betaGrad = outputs[2];
+    float* mean = mMean->getValues();
+    float* stddev = mStddev->getValues();
+
+    size_t size = getInputs()[0]->getShape().getCount();
+    size_t batchSize = getBatchSize(getInputs()[0], mNumAxes);
+
+    if (getInputs()[0]->getType() == MemoryType::kHOST_MEMORY)
+        runBatchNormGradientHost(x, alpha, beta, y, yGrad, mean, stddev, xGrad,
+                                 alphaGrad, betaGrad, size, batchSize);
+#ifdef CUDA_AVAI
