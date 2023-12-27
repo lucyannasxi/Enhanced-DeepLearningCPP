@@ -39,4 +39,4 @@ Tensor::SPtr constant(float value, const TensorShape& shape, MemoryType type);
 }  // namespace core
 }  // namespace graphdl
 
-#endif  // GRAPHDL
+#endif  // GRAPHDL_CORE_CONSTANT_LAYER_H_
