@@ -50,4 +50,13 @@ Tensor::SPtr constant(float value, const TensorShape& shape, MemoryType type)
 
 ITensorPtr constant(float value, const Shape& shape, MemoryLocation location)
 {
-    core::MemoryType type = core::memoryLocationToType(locatio
+    core::MemoryType type = core::memoryLocationToType(location);
+    return makeAbstractTensor(core::constant(value, shape, type));
+}
+
+ITensorPtr scalar(float value, MemoryLocation location)
+{
+    return constant(value, {}, location);
+}
+
+}  // namespace graphdl
