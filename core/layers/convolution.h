@@ -26,4 +26,40 @@ class Conv2DLayer : public DifferentiableLayer
   private:
     void execute(const std::vector<float*>& inputs,
                  const std::vector<float*>& outputs,
-                 const InputDict& in
+                 const InputDict& inputDict) override;
+
+    std::vector<int> mStrides;
+    PaddingType mPadding;
+    DataFormat mDataFormat;
+    Memory<int> mGpuParams;
+};
+
+class Conv2DGradientLayer : public Layer
+{
+  public:
+    Conv2DGradientLayer(ID id, const Tensor::SPtr& t, const Tensor::SPtr& k,
+                        const Tensor::SPtr& out, const Tensor::SPtr& outG,
+                        std::vector<int> strides, PaddingType padding,
+                        DataFormat dataFormat);
+
+    void initialize() override;
+
+    ~Conv2DGradientLayer();
+
+  private:
+    void execute(const std::vector<float*>& inputs,
+                 const std::vector<float*>& outputs,
+                 const InputDict& inputDict) override;
+
+    std::vector<int> mStrides;
+    PaddingType mPadding;
+    DataFormat mDataFormat;
+    Memory<int> mGpuParams;
+};
+
+#ifdef CUDA_AVAILABLE
+namespace cuda
+{
+void runConv2DDevice(const float* x, const float* k, float* y,
+                     const int* params, PaddingType padding,
+          
