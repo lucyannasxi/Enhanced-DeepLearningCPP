@@ -51,4 +51,31 @@ __global__ void xGradKernel(const float* x, const float* alpha, const float* y,
         for (int i = c; i < featureSize * batchSize; i += featureSize)
             val += yGrad[i] * x[i];
 
-        float out = yGrad[pos] - betaGrad[c] / float(batchS
+        float out = yGrad[pos] - betaGrad[c] / float(batchSize);
+        out -= 0.5 * (x[pos] - mean[c]) * val / (stddev[c] + EPS);
+        out /= sqrt(stddev[c] + EPS);
+        out *= alpha[c];
+        xGrad[pos] = out;
+    }
+}
+
+}  // namespace
+
+void runBatchNormDevice(const float* x, const float* alpha, const float* beta,
+                        float* y, float* mean, float* stddev, size_t size,
+                        size_t batchSize)
+{
+    int BLOCK_SIZE = 256;
+    int NUM_BLOCKS = (size + BLOCK_SIZE - 1) / BLOCK_SIZE;
+    size_t featureSize = size / batchSize;
+
+    reduceFront<ReduceOpCuda::kMEAN>(x, mean, featureSize, batchSize);
+    runElementwiseBackDevice(x, size, mean, featureSize, y, Elementwise::kSUB);
+    reduceFront<ReduceOpCuda::kSQUARED_MEAN>(y, stddev, featureSize, batchSize);
+
+    normalizeKernel<<<NUM_BLOCKS, BLOCK_SIZE>>>(alpha, beta, stddev, y,
+                                                featureSize, size);
+}
+
+void runBatchNormGradientDevice(const float* x, const float* alpha,
+                                const float* be
