@@ -78,4 +78,24 @@ void runBatchNormDevice(const float* x, const float* alpha, const float* beta,
 }
 
 void runBatchNormGradientDevice(const float* x, const float* alpha,
-                                const float* be
+                                const float* beta, const float* y,
+                                const float* yGrad, const float* mean,
+                                const float* stddev, float* xGrad,
+                                float* alphaGrad, float* betaGrad, size_t size,
+                                size_t batchSize)
+{
+    size_t featureSize = size / batchSize;
+
+    reduceFront<ReduceOpCuda::kSUM>(yGrad, betaGrad, featureSize, batchSize);
+    reduceBinFront<ReduceBinOpCuda::kDOT_PRODUCT>(yGrad, y, alphaGrad,
+                                                  featureSize, batchSize);
+
+    int BLOCK_SIZE = 256;
+    int NUM_BLOCKS = utils::numBlocks(featureSize, BLOCK_SIZE);
+    alphaGradKernel<<<NUM_BLOCKS, BLOCK_SIZE>>>(betaGrad, beta, alpha,
+                                                alphaGrad, featureSize);
+
+    NUM_BLOCKS = utils::numBlocks(size, BLOCK_SIZE);
+    xGradKernel<<<NUM_BLOCKS, BLOCK_SIZE>>>(x, alpha, y, yGrad, mean, stddev,
+                                            betaGrad, xGrad, featureSize,
+                                
