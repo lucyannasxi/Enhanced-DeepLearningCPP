@@ -98,4 +98,10 @@ void runBatchNormGradientDevice(const float* x, const float* alpha,
     NUM_BLOCKS = utils::numBlocks(size, BLOCK_SIZE);
     xGradKernel<<<NUM_BLOCKS, BLOCK_SIZE>>>(x, alpha, y, yGrad, mean, stddev,
                                             betaGrad, xGrad, featureSize,
-                                
+                                            batchSize);
+}
+
+}  // namespace cuda
+}  // namespace layers
+}  // namespace core
+}  // namespace graphdl
