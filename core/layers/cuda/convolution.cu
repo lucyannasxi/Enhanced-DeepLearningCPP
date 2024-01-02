@@ -338,3 +338,29 @@ void runConv2DGradientDevice(const float* x, const float* k, const float* yG,
     else  // dataFormat == DataFormat::kNCHW
     {
         if (padding == PaddingType::kVALID)
+        {
+            conv2D_grad_x_nchw_kernel<PaddingType::kVALID>
+                <<<GRID, BLOCK>>>(k, yG, xG);
+            conv2D_grad_k_nchw_kernel<PaddingType::kVALID>
+                <<<GRID, BLOCK>>>(x, yG, kG);
+        }
+        else  // padding == PaddingType::kSAME
+        {
+            conv2D_grad_x_nchw_kernel<PaddingType::kSAME>
+                <<<GRID, BLOCK>>>(k, yG, xG);
+            conv2D_grad_k_nchw_kernel<PaddingType::kSAME>
+                <<<GRID, BLOCK>>>(x, yG, kG);
+        }
+    }
+}
+
+#undef IN_SHAPE
+#undef OUT_SHAPE
+#undef KER_SHAPE
+#undef strideX
+#undef strideY
+
+}  // namespace cuda
+}  // namespace layers
+}  // namespace core
+}  // namespace graphdl
