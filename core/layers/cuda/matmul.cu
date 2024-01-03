@@ -47,4 +47,36 @@ __global__ void matmulKernel(int n, int m, int k, const float* X1,
         __syncthreads();
 
         for (int i = 0; i < TILE_SIZE; ++i)
-           
+            tmp += tile_X1[TILE_SIZE * threadIdx.x + i] *
+                   tile_X2[TILE_SIZE * i + threadIdx.y];
+
+        __syncthreads();
+    }
+
+    if (row < n && col < k) Y[k * row + col] = tmp;
+}
+
+}  // namespace
+
+void runMatmulDevice(const float* x1, const float* x2, float* y, int n, int m,
+                     int k)
+{
+    const int TILE_SIZE = 16;
+    dim3 GRID((n + TILE_SIZE - 1) / TILE_SIZE, (k + TILE_SIZE - 1) / TILE_SIZE);
+    dim3 BLOCK(TILE_SIZE, TILE_SIZE);
+    matmulKernel<TILE_SIZE, false, false><<<GRID, BLOCK>>>(n, m, k, x1, x2, y);
+}
+
+void runMatmulGradientDevice(const float* x1, const float* x2,
+                             const float* yGrad, float* x1Grad, float* x2Grad,
+                             int n, int m, int k)
+{
+    const int TILE_SIZE = 16;
+    dim3 BLOCK(TILE_SIZE, TILE_SIZE);
+    dim3 GRID1((n + TILE_SIZE - 1) / TILE_SIZE,
+               (m + TILE_SIZE - 1) / TILE_SIZE);
+    dim3 GRID2((m + TILE_SIZE - 1) / TILE_SIZE,
+               (k + TILE_SIZE - 1) / TILE_SIZE);
+
+    matmulKernel<TILE_SIZE, false, true>
+  
