@@ -100,4 +100,38 @@ __global__ void pool2D_avg_nhwc_kernel(const float* in, float* out)
 template <PaddingType padding>
 __global__ void pool2D_max_nchw_kernel(const float* in, float* out)
 {
-    int x_out = blockIdx.x * blockDim.
+    int x_out = blockIdx.x * blockDim.x + threadIdx.x;
+    int y_out = blockIdx.y * blockDim.y + threadIdx.y;
+    int n = blockIdx.z * blockDim.z + threadIdx.z;
+    int c = n % shapeParams[5];
+    n /= shapeParams[5];
+
+    if (n < shapeParams[4] && c < shapeParams[5] && x_out < shapeParams[6] &&
+        y_out < shapeParams[7])
+    {
+        int x_in = x_out * strideX, y_in = y_out * strideY;
+        if (padding == PaddingType::kSAME)
+        {
+            x_in -= (kernelX - 1) / 2;
+            y_in -= (kernelY - 1) / 2;
+        }
+
+        float val = 0.;
+        if (x_in >= 0 && y_in >= 0)
+            val = in[POS_4D(n, c, x_in, y_in, IN_SHAPE)];
+
+        if (x_in < 0 || x_in + kernelX > shapeParams[2] || y_in < 0 ||
+            y_in + kernelY > shapeParams[3])
+            val = max(val, 0.);
+
+        for (int x_iter = max(x_in, 0);
+             x_iter < min(x_in + kernelX, shapeParams[2]); ++x_iter)
+        {
+            for (int y_iter = max(y_in, 0);
+                 y_iter < min(y_in + kernelY, shapeParams[3]); ++y_iter)
+            {
+                val = max(val, in[POS_4D(n, c, x_iter, y_iter, IN_SHAPE)]);
+            }
+        }
+
+        out[POS_4D(n,
