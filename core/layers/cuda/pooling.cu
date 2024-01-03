@@ -196,4 +196,30 @@ __global__ void pool2D_grad_nhwc_kernel(const float* in, const float* out,
         }
 
         for (int x_iter = max(x_in, 0);
-             x_iter < min(
+             x_iter < min(x_in + kernelX, shapeParams[1]); ++x_iter)
+        {
+            for (int y_iter = max(y_in, 0);
+                 y_iter < min(y_in + kernelY, shapeParams[2]); ++y_iter)
+            {
+                if (pooling == PoolingType::kMAX)
+                {
+                    if (in[POS_4D(n, x_iter, y_iter, c, IN_SHAPE)] == outVal)
+                        atomicAdd(&inG[POS_4D(n, x_iter, y_iter, c, IN_SHAPE)],
+                                  outGVal);
+                }
+                if (pooling == PoolingType::kAVERAGE)
+                {
+                    atomicAdd(&inG[POS_4D(n, x_iter, y_iter, c, IN_SHAPE)],
+                              outGVal / (kernelX * kernelY));
+                }
+            }
+        }
+    }
+}
+
+template <PoolingType pooling, PaddingType padding>
+__global__ void pool2D_grad_nchw_kernel(const float* in, const float* out,
+                                        const float* outG, float* inG)
+{
+    int x_out = blockIdx.x * blockDim.x + threadIdx.x;
+    int y_out = blockIdx.y * blockDim.y + thre
