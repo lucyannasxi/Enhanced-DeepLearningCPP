@@ -79,4 +79,12 @@ void runMatmulGradientDevice(const float* x1, const float* x2,
                (k + TILE_SIZE - 1) / TILE_SIZE);
 
     matmulKernel<TILE_SIZE, false, true>
-  
+        <<<GRID1, BLOCK>>>(n, k, m, yGrad, x2, x1Grad);
+    matmulKernel<TILE_SIZE, true, false>
+        <<<GRID2, BLOCK>>>(m, n, k, x1, yGrad, x2Grad);
+}
+
+}  // namespace cuda
+}  // namespace layers
+}  // namespace core
+}  // namespace graphdl
