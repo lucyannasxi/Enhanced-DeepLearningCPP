@@ -251,4 +251,36 @@ __global__ void pool2D_grad_nchw_kernel(const float* in, const float* out,
                     if (in[POS_4D(n, c, x_iter, y_iter, IN_SHAPE)] == outVal)
                         atomicAdd(&inG[POS_4D(n, c, x_iter, y_iter, IN_SHAPE)],
                                   outGVal);
-         
+                }
+                if (pooling == PoolingType::kAVERAGE)
+                {
+                    atomicAdd(&inG[POS_4D(n, c, x_iter, y_iter, IN_SHAPE)],
+                              outGVal / (kernelX * kernelY));
+                }
+            }
+        }
+    }
+}
+
+}  // namespace
+
+void runPool2DDevice(const float* x, float* y, const int* params,
+                     PoolingType pooling, PaddingType padding,
+                     DataFormat dataFormat)
+{
+    const int TILE = 8;
+    const dim3 BLOCK(TILE, TILE, TILE);
+
+    dim3 GRID;
+    if (dataFormat == DataFormat::kNHWC)
+        GRID =
+            dim3((params[5] + TILE - 1) / TILE, (params[6] + TILE - 1) / TILE,
+                 (params[4] * params[7] + TILE - 1) / TILE);
+    else
+        GRID =
+            dim3((params[6] + TILE - 1) / TILE, (params[7] + TILE - 1) / TILE,
+                 (params[4] * params[5] + TILE - 1) / TILE);
+
+    cudaMemcpyToSymbol(shapeParams, params, 12 * sizeof(int));
+
+#define LAUNCH(format, pool)                            
