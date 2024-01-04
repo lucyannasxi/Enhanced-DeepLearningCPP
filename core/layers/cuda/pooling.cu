@@ -222,4 +222,33 @@ __global__ void pool2D_grad_nchw_kernel(const float* in, const float* out,
                                         const float* outG, float* inG)
 {
     int x_out = blockIdx.x * blockDim.x + threadIdx.x;
-    int y_out = blockIdx.y * blockDim.y + thre
+    int y_out = blockIdx.y * blockDim.y + threadIdx.y;
+    int n = blockIdx.z * blockDim.z + threadIdx.z;
+    int c = n % shapeParams[5];
+    n /= shapeParams[5];
+
+    if (n < shapeParams[4] && c < shapeParams[5] && x_out < shapeParams[6] &&
+        y_out < shapeParams[7])
+    {
+        float outVal = out[POS_4D(n, c, x_out, y_out, OUT_SHAPE)];
+        float outGVal = outG[POS_4D(n, c, x_out, y_out, OUT_SHAPE)];
+
+        int x_in = x_out * strideX, y_in = y_out * strideY;
+        if (padding == PaddingType::kSAME)
+        {
+            x_in -= (kernelX - 1) / 2;
+            y_in -= (kernelY - 1) / 2;
+        }
+
+        for (int x_iter = max(x_in, 0);
+             x_iter < min(x_in + kernelX, shapeParams[2]); ++x_iter)
+        {
+            for (int y_iter = max(y_in, 0);
+                 y_iter < min(y_in + kernelY, shapeParams[3]); ++y_iter)
+            {
+                if (pooling == PoolingType::kMAX)
+                {
+                    if (in[POS_4D(n, c, x_iter, y_iter, IN_SHAPE)] == outVal)
+                        atomicAdd(&inG[POS_4D(n, c, x_iter, y_iter, IN_SHAPE)],
+                                  outGVal);
+         
