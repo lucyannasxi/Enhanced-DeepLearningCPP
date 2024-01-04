@@ -312,4 +312,29 @@ void runPool2DDevice(const float* x, float* y, const int* params,
 }
 
 void runPool2DGradientDevice(const float* x, const float* y, const float* yG,
-                             float* xG, const int* params, PoolingTy
+                             float* xG, const int* params, PoolingType pooling,
+                             PaddingType padding, DataFormat dataFormat)
+{
+    size_t size = params[0] * params[1] * params[2] * params[3];
+    utils::fill(xG, size, 0.);
+
+    const int TILE = 8;
+    const dim3 BLOCK(TILE, TILE, TILE);
+
+    dim3 GRID;
+    if (dataFormat == DataFormat::kNHWC)
+        GRID =
+            dim3((params[5] + TILE - 1) / TILE, (params[6] + TILE - 1) / TILE,
+                 (params[4] * params[7] + TILE - 1) / TILE);
+    else
+        GRID =
+            dim3((params[6] + TILE - 1) / TILE, (params[7] + TILE - 1) / TILE,
+                 (params[4] * params[5] + TILE - 1) / TILE);
+
+    cudaMemcpyToSymbol(shapeParams, params, 12 * sizeof(int));
+
+#define LAUNCH(format)                                                 \
+    {                                                                  \
+        if (pooling == PoolingType::kMAX)                              \
+        {                                                              \
+            if (padding == Pad
