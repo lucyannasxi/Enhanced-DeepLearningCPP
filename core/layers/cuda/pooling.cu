@@ -283,4 +283,33 @@ void runPool2DDevice(const float* x, float* y, const int* params,
 
     cudaMemcpyToSymbol(shapeParams, params, 12 * sizeof(int));
 
-#define LAUNCH(format, pool)                            
+#define LAUNCH(format, pool)                                       \
+    {                                                              \
+        if (padding == PaddingType::kSAME)                         \
+            pool2D_##pool##_##format##_kernel<PaddingType::kSAME>  \
+                <<<GRID, BLOCK>>>(x, y);                           \
+        else                                                       \
+            pool2D_##pool##_##format##_kernel<PaddingType::kVALID> \
+                <<<GRID, BLOCK>>>(x, y);                           \
+    }
+
+    if (dataFormat == DataFormat::kNHWC)
+    {
+        if (pooling == PoolingType::kMAX)
+            LAUNCH(nhwc, max)
+        else
+            LAUNCH(nhwc, avg)
+    }
+    else  // dataFormat == DataFormat::kNCHW
+    {
+        if (pooling == PoolingType::kMAX)
+            LAUNCH(nchw, max)
+        else
+            LAUNCH(nchw, avg)
+    }
+
+#undef LAUNCH
+}
+
+void runPool2DGradientDevice(const float* x, const float* y, const float* yG,
+                             float* xG, const int* params, PoolingTy
