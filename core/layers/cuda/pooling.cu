@@ -352,4 +352,29 @@ void runPool2DGradientDevice(const float* x, const float* y, const float* yG,
                 pool2D_grad##_##format##_kernel<PoolingType::kAVERAGE, \
                                                 PaddingType::kSAME>    \
                     <<<GRID, BLOCK>>>(x, y, yG, xG);                   \
-            else                  
+            else                                                       \
+                pool2D_grad##_##format##_kernel<PoolingType::kAVERAGE, \
+                                                PaddingType::kVALID>   \
+                    <<<GRID, BLOCK>>>(x, y, yG, xG);                   \
+        }                                                              \
+    }
+
+    if (dataFormat == DataFormat::kNHWC)
+        LAUNCH(nhwc)
+    else  // dataFormat == DataFormat::kNCHW
+        LAUNCH(nchw)
+
+#undef LAUNCH
+}
+
+#undef IN_SHAPE
+#undef OUT_SHAPE
+#undef kernelX
+#undef kernelY
+#undef strideX
+#undef strideY
+
+}  // namespace cuda
+}  // namespace layers
+}  // namespace core
+}  // namespace graphdl
