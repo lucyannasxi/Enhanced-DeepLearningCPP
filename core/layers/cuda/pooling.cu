@@ -337,4 +337,19 @@ void runPool2DGradientDevice(const float* x, const float* y, const float* yG,
     {                                                                  \
         if (pooling == PoolingType::kMAX)                              \
         {                                                              \
-            if (padding == Pad
+            if (padding == PaddingType::kSAME)                         \
+                pool2D_grad##_##format##_kernel<PoolingType::kMAX,     \
+                                                PaddingType::kSAME>    \
+                    <<<GRID, BLOCK>>>(x, y, yG, xG);                   \
+            else                                                       \
+                pool2D_grad##_##format##_kernel<PoolingType::kMAX,     \
+                                                PaddingType::kVALID>   \
+                    <<<GRID, BLOCK>>>(x, y, yG, xG);                   \
+        }                                                              \
+        else                                                           \
+        {                                                              \
+            if (padding == PaddingType::kSAME)                         \
+                pool2D_grad##_##format##_kernel<PoolingType::kAVERAGE, \
+                                                PaddingType::kSAME>    \
+                    <<<GRID, BLOCK>>>(x, y, yG, xG);                   \
+            else                  
