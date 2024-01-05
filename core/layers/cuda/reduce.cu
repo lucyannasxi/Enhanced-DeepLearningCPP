@@ -43,4 +43,38 @@ void runReduceBackGradientDevice(const float* x, const float* y,
         break;
     case ReduceType::kMAX:
         reduceGradient<ReduceOpCuda::kMAX>(x, y, yGrad, xGrad, outSize,
-                       
+                                           reduceSize);
+        break;
+    }
+}
+
+void runReduceFrontDevice(const float* x, float* y, size_t outSize,
+                          size_t reduceSize, ReduceType reduceType)
+{
+    switch (reduceType)
+    {
+    case ReduceType::kSUM:
+        reduceFront<ReduceOpCuda::kSUM>(x, y, outSize, reduceSize);
+        break;
+    case ReduceType::kMIN:
+        reduceFront<ReduceOpCuda::kMIN>(x, y, outSize, reduceSize);
+        break;
+    case ReduceType::kMAX:
+        reduceFront<ReduceOpCuda::kMAX>(x, y, outSize, reduceSize);
+        break;
+    }
+}
+
+void runReduceFrontGradientDevice(const float* x, const float* y,
+                                  const float* yGrad, float* xGrad,
+                                  size_t outSize, size_t reduceSize,
+                                  ReduceType reduceType)
+{
+    switch (reduceType)
+    {
+    case ReduceType::kSUM:
+        reduceFrontGradient<ReduceOpCuda::kSUM>(x, y, yGrad, xGrad, outSize,
+                                                reduceSize);
+        break;
+    case ReduceType::kMIN:
+        redu
