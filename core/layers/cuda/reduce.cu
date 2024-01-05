@@ -77,4 +77,17 @@ void runReduceFrontGradientDevice(const float* x, const float* y,
                                                 reduceSize);
         break;
     case ReduceType::kMIN:
-        redu
+        reduceFrontGradient<ReduceOpCuda::kMIN>(x, y, yGrad, xGrad, outSize,
+                                                reduceSize);
+        break;
+    case ReduceType::kMAX:
+        reduceFrontGradient<ReduceOpCuda::kMAX>(x, y, yGrad, xGrad, outSize,
+                                                reduceSize);
+        break;
+    }
+}
+
+}  // namespace cuda
+}  // namespace layers
+}  // namespace core
+}  // namespace graphdl
