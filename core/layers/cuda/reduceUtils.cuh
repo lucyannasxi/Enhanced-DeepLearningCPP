@@ -129,4 +129,36 @@ __device__ void warpReduce(volatile float *sdata, unsigned tid)
 {
     if (BS >= 64) sdata[tid] = reduceOp<op>(sdata[tid], sdata[tid + 32]);
     if (BS >= 32) sdata[tid] = reduceOp<op>(sdata[tid], sdata[tid + 16]);
-    if (BS >= 16) sdata[tid]
+    if (BS >= 16) sdata[tid] = reduceOp<op>(sdata[tid], sdata[tid + 8]);
+    if (BS >= 8) sdata[tid] = reduceOp<op>(sdata[tid], sdata[tid + 4]);
+    if (BS >= 4) sdata[tid] = reduceOp<op>(sdata[tid], sdata[tid + 2]);
+    if (BS >= 2) sdata[tid] = reduceOp<op>(sdata[tid], sdata[tid + 1]);
+}
+
+template <ReduceOpCuda op, unsigned BS>
+__global__ void reduceKernel(const float* x, float* y, size_t reduceSize, int blockPerReduce)
+{
+    __shared__ float sData[BS];
+    x += (blockIdx.x / blockPerReduce) * reduceSize;
+
+    int tid = threadIdx.x;
+    int id = (blockIdx.x % blockPerReduce) * BS + threadIdx.x;
+    float v;
+
+    sData[tid] = initialValue<op>();
+    while (id < reduceSize)
+    {
+        v = initialReduceOp<op>(x[id]);
+        sData[tid] = reduceOp<op>(sData[tid], v);
+        id += BS * blockPerReduce;
+    }
+    __syncthreads();
+
+    if (BS >= 512)
+    {
+        if (tid < 256) sData[tid] = reduceOp<op>(sData[tid], sData[tid + 256]);
+        __syncthreads();
+    }
+    if (BS >= 256)
+    {
+        if (tid < 128) sData[tid] = r
