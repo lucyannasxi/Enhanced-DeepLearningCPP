@@ -45,3 +45,17 @@ void uniformRandom(float* memory, size_t size, float min, float max,
 void normalRandom(float* memory, size_t size, float mean, float stddev,
                   size_t seed)
 {
+    const int BLOCK_SIZE = 256;
+    const int NUM_BLOCKS = (size + BLOCK_SIZE - 1) / BLOCK_SIZE;
+
+    curandState* states;
+    cudaMalloc(&states, size * sizeof(curandState));
+    setupKernel<<<NUM_BLOCKS, BLOCK_SIZE>>>(states, seed);
+    normalRandomKernel<<<NUM_BLOCKS, BLOCK_SIZE>>>(states, memory, size, mean,
+                                                   stddev);
+    cudaDeviceSynchronize();
+}
+
+}  // namespace cuda
+}  // namespace core
+}  // namespace graphdl
