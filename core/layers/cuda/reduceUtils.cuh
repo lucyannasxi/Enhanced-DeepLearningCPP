@@ -367,4 +367,36 @@ void reduce(const float* x, float* y, size_t outSize, size_t reduceSize)
         cudaMalloc(&temp, NUM_BLOCKS * sizeof(float));
         reduceKernel<op, BLOCK_SIZE><<<NUM_BLOCKS, BLOCK_SIZE>>>(
                 x, temp, reduceSize, NUM_BLOCKS_PER_REDUCTION);
-        reduceKernel<op, B
+        reduceKernel<op, BLOCK_SIZE><<<outSize, BLOCK_SIZE>>>(
+                temp, y, NUM_BLOCKS_PER_REDUCTION, 1);
+        cudaFree(temp);
+    }
+    else
+        reduceKernel<op, BLOCK_SIZE><<<NUM_BLOCKS, BLOCK_SIZE>>>(
+                x, y, reduceSize, NUM_BLOCKS_PER_REDUCTION);
+}
+
+template <ReduceOpCuda op>
+void reduceGradient(const float* x, const float* y,
+                    const float* yGrad, float* xGrad,
+                    size_t outSize, size_t reduceSize)
+{
+    const int BLOCK_SIZE = 256;
+    const int NUM_BLOCKS = (outSize * reduceSize + BLOCK_SIZE - 1) / BLOCK_SIZE;
+
+    reduceGradientKernel<op><<<NUM_BLOCKS, BLOCK_SIZE>>>(
+            x, y, yGrad, xGrad, outSize * reduceSize, reduceSize);
+}
+
+template <ReduceOpCuda op>
+void reduceFront(const float* x, float* y, size_t outSize, size_t reduceSize)
+{
+    const int BLOCK_SIZE = 256;
+    const int NUM_BLOCKS_PER_REDUCTION = (reduceSize + BLOCK_SIZE - 1) / BLOCK_SIZE;
+    const int NUM_BLOCKS = NUM_BLOCKS_PER_REDUCTION * outSize;
+
+    if (NUM_BLOCKS_PER_REDUCTION > 1)
+    {
+        float* temp;
+        cudaMalloc(&temp, NUM_BLOCKS * sizeof(float));
+        
