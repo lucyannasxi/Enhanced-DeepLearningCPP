@@ -332,4 +332,39 @@ __global__ void reduceBinFrontKernel(const float* x1, const float* x2,
     }
     __syncthreads();
 
-   
+    if (BS >= 512)
+    {
+        if (tid < 256) sData[tid] = reduceOp<op>(sData[tid], sData[tid + 256]);
+        __syncthreads();
+    }
+    if (BS >= 256)
+    {
+        if (tid < 128) sData[tid] = reduceOp<op>(sData[tid], sData[tid + 128]);
+        __syncthreads();
+    }
+    if (BS >= 128)
+    {
+        if (tid < 64) sData[tid] = reduceOp<op>(sData[tid], sData[tid + 64]);
+        __syncthreads();
+    }
+
+    if (tid < 32) warpReduce<op, BS>(sData, tid);
+    if (tid == 0) y[blockIdx.x] = sData[0];
+}
+
+}  // namespace
+
+template <ReduceOpCuda op>
+void reduce(const float* x, float* y, size_t outSize, size_t reduceSize)
+{
+    const int BLOCK_SIZE = 256;
+    const int NUM_BLOCKS_PER_REDUCTION = (reduceSize + BLOCK_SIZE - 1) / BLOCK_SIZE;
+    const int NUM_BLOCKS = NUM_BLOCKS_PER_REDUCTION * outSize;
+
+    if (NUM_BLOCKS_PER_REDUCTION > 1)
+    {
+        float* temp;
+        cudaMalloc(&temp, NUM_BLOCKS * sizeof(float));
+        reduceKernel<op, BLOCK_SIZE><<<NUM_BLOCKS, BLOCK_SIZE>>>(
+                x, temp, reduceSize, NUM_BLOCKS_PER_REDUCTION);
+        reduceKernel<op, B
