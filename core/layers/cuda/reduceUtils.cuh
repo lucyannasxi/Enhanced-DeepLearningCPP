@@ -268,4 +268,40 @@ __global__ void reduceFrontGradientKernel(const float* x, const float* y,
             int reduceSize = size / outSize;
             xGrad[id] = yGrad[id % outSize] *
                         reduceGradientOp<op>(x[id], y[id % outSize]) / reduceSize;
-       
+        }
+        else
+        {
+            xGrad[id] = yGrad[id % outSize] *
+                        reduceGradientOp<op>(x[id], y[id % outSize]);
+        }
+    }
+}
+
+/////////////////////////////////////////////////////////////////////////
+// Binary Reduction
+/////////////////////////////////////////////////////////////////////////
+
+// represent initial value from which reduction starts
+// (initial value for accumulator)
+template <ReduceBinOpCuda op> __device__ float initialValue()
+{
+    return 0.;
+}
+
+// represents initial transformation for elements
+template <ReduceBinOpCuda op> __device__ float initialReduceOp(float x1, float x2)
+{
+    return x1 * x2;
+}
+
+// describes how to reduce elements
+template <ReduceBinOpCuda op> __device__ float reduceOp(float x1, float x2)
+{
+    return x1 + x2;
+}
+
+template <ReduceBinOpCuda op, unsigned BS>
+__device__ void warpReduce(volatile float *sdata, unsigned tid)
+{
+    if (BS >= 64) sdata[tid] = reduceOp<op>(sdata[tid], sdata[tid + 32]);
+    if (BS >= 32) sdata[tid] = 
