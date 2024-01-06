@@ -426,4 +426,28 @@ template <ReduceBinOpCuda op>
 void reduceBinFront(const float* x1, const float* x2, float* y,
                     size_t outputSize, size_t reduceSize)
 {
-    const int BLOCK_SIZE 
+    const int BLOCK_SIZE = 256;
+    const int NUM_BLOCKS_PER_REDUCTION = utils::numBlocks(reduceSize, BLOCK_SIZE);
+    const int NUM_BLOCKS = NUM_BLOCKS_PER_REDUCTION * outputSize;
+
+    if (NUM_BLOCKS_PER_REDUCTION > 1)
+    {
+        float* temp;
+        cudaMalloc(&temp, NUM_BLOCKS * sizeof(float));
+        reduceBinFrontKernel<op, BLOCK_SIZE><<<NUM_BLOCKS, BLOCK_SIZE>>>(
+                x1, x2, temp, outputSize, reduceSize, NUM_BLOCKS_PER_REDUCTION);
+        reduceKernel<ReduceOpCuda::kSUM, BLOCK_SIZE><<<outputSize, BLOCK_SIZE>>>(
+                temp, y, NUM_BLOCKS_PER_REDUCTION, 1);
+        cudaFree(temp);
+    }
+    else
+        reduceBinFrontKernel<op, BLOCK_SIZE><<<NUM_BLOCKS, BLOCK_SIZE>>>(
+                x1, x2, y, outputSize, reduceSize, NUM_BLOCKS_PER_REDUCTION);
+}
+
+}  // namespace cuda
+}  // namespace layers
+}  // namespace core
+}  // namespace graphdl
+
+#endif  // GRAPHDL_CORE_LAYERS_CUDA_REDUCE_UTILS_H_
