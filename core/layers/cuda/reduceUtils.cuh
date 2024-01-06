@@ -399,4 +399,31 @@ void reduceFront(const float* x, float* y, size_t outSize, size_t reduceSize)
     {
         float* temp;
         cudaMalloc(&temp, NUM_BLOCKS * sizeof(float));
-        
+        reduceFrontKernel<op, BLOCK_SIZE><<<NUM_BLOCKS, BLOCK_SIZE>>>(
+                x, temp, outSize, reduceSize, NUM_BLOCKS_PER_REDUCTION);
+        reduceKernel<op, BLOCK_SIZE><<<outSize, BLOCK_SIZE>>>(
+                temp, y, NUM_BLOCKS_PER_REDUCTION, 1);
+        cudaFree(temp);
+    }
+    else
+        reduceFrontKernel<op, BLOCK_SIZE><<<NUM_BLOCKS, BLOCK_SIZE>>>(
+                x, y, outSize, reduceSize, NUM_BLOCKS_PER_REDUCTION);
+}
+
+template <ReduceOpCuda op>
+void reduceFrontGradient(const float* x, const float* y,
+                         const float* yGrad, float* xGrad,
+                         size_t outSize, size_t reduceSize)
+{
+    const int BLOCK_SIZE = 256;
+    const int NUM_BLOCKS = (outSize * reduceSize + BLOCK_SIZE - 1) / BLOCK_SIZE;
+
+    reduceFrontGradientKernel<op><<<NUM_BLOCKS, BLOCK_SIZE>>>(
+            x, y, yGrad, xGrad, outSize * reduceSize, outSize);
+}
+
+template <ReduceBinOpCuda op>
+void reduceBinFront(const float* x1, const float* x2, float* y,
+                    size_t outputSize, size_t reduceSize)
+{
+    const int BLOCK_SIZE 
