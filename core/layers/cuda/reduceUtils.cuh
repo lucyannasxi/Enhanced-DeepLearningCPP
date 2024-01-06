@@ -304,4 +304,32 @@ template <ReduceBinOpCuda op, unsigned BS>
 __device__ void warpReduce(volatile float *sdata, unsigned tid)
 {
     if (BS >= 64) sdata[tid] = reduceOp<op>(sdata[tid], sdata[tid + 32]);
-    if (BS >= 32) sdata[tid] = 
+    if (BS >= 32) sdata[tid] = reduceOp<op>(sdata[tid], sdata[tid + 16]);
+    if (BS >= 16) sdata[tid] = reduceOp<op>(sdata[tid], sdata[tid + 8]);
+    if (BS >= 8) sdata[tid] = reduceOp<op>(sdata[tid], sdata[tid + 4]);
+    if (BS >= 4) sdata[tid] = reduceOp<op>(sdata[tid], sdata[tid + 2]);
+    if (BS >= 2) sdata[tid] = reduceOp<op>(sdata[tid], sdata[tid + 1]);
+}
+
+template <ReduceBinOpCuda op, unsigned BS>
+__global__ void reduceBinFrontKernel(const float* x1, const float* x2,
+                                     float* y, size_t outSize, size_t reduceSize,
+                                     int blockPerReduce)
+{
+    __shared__ float sData[BS];
+
+    int tid = threadIdx.x;
+    int id = ((blockIdx.x % blockPerReduce) * BS + tid) * outSize +
+             (blockIdx.x / blockPerReduce);
+    float v;
+
+    sData[tid] = initialValue<op>();
+    while (id < outSize * reduceSize)
+    {
+        v = initialReduceOp<op>(x1[id], x2[id]);
+        sData[tid] = reduceOp<op>(sData[tid], v);
+        id += BS * blockPerReduce * outSize;
+    }
+    __syncthreads();
+
+   
