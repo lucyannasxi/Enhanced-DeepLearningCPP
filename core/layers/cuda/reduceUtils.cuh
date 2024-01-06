@@ -195,4 +195,45 @@ __global__ void reduceGradientKernel(const float* x, const float* y,
             op == ReduceOpCuda::kSQUARED_MEAN)
         {
             xGrad[id] = yGrad[id / reduceSize] *
-                        reduceGradientOp<op>(x[id], y[id / reduceSize]) / reduceS
+                        reduceGradientOp<op>(x[id], y[id / reduceSize]) / reduceSize;
+        }
+        else
+        {
+            xGrad[id] = yGrad[id / reduceSize] *
+                        reduceGradientOp<op>(x[id], y[id / reduceSize]);
+        }
+    }
+}
+
+template <ReduceOpCuda op, unsigned BS>
+__global__ void reduceFrontKernel(const float* x, float* y,
+                                  size_t outSize, size_t reduceSize,
+                                  int blockPerReduce)
+{
+    __shared__ float sData[BS];
+
+    int tid = threadIdx.x;
+    int id = ((blockIdx.x % blockPerReduce) * BS + tid) * outSize +
+             (blockIdx.x / blockPerReduce);
+    float v;
+
+    sData[tid] = initialValue<op>();
+    while (id < outSize * reduceSize)
+    {
+        v = initialReduceOp<op>(x[id]);
+        sData[tid] = reduceOp<op>(sData[tid], v);
+        id += BS * blockPerReduce * outSize;
+    }
+    __syncthreads();
+
+    if (BS >= 512)
+    {
+        if (tid < 256) sData[tid] = reduceOp<op>(sData[tid], sData[tid + 256]);
+        __syncthreads();
+    }
+    if (BS >= 256)
+    {
+        if (tid < 128) sData[tid] = reduceOp<op>(sData[tid], sData[tid + 128]);
+        __syncthreads();
+    }
+    i
