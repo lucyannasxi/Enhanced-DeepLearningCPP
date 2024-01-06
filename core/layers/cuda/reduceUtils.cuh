@@ -161,4 +161,38 @@ __global__ void reduceKernel(const float* x, float* y, size_t reduceSize, int bl
     }
     if (BS >= 256)
     {
-        if (tid < 128) sData[tid] = r
+        if (tid < 128) sData[tid] = reduceOp<op>(sData[tid], sData[tid + 128]);
+        __syncthreads();
+    }
+    if (BS >= 128)
+    {
+        if (tid < 64) sData[tid] = reduceOp<op>(sData[tid], sData[tid + 64]);
+        __syncthreads();
+    }
+
+    if (tid < 32) warpReduce<op, BS>(sData, tid);
+
+    if (op == ReduceOpCuda::kMEAN ||
+        op == ReduceOpCuda::kSQUARED_MEAN)
+    {
+        if (tid == 0) y[blockIdx.x] = sData[0] / reduceSize;
+    }
+    else
+    {
+        if (tid == 0) y[blockIdx.x] = sData[0];
+    }
+}
+
+template <ReduceOpCuda op>
+__global__ void reduceGradientKernel(const float* x, const float* y,
+                                     const float* yGrad, float* xGrad,
+                                     size_t size, size_t reduceSize)
+{
+    int id = blockIdx.x * blockDim.x + threadIdx.x;
+    if (id < size)
+    {
+        if (op == ReduceOpCuda::kMEAN ||
+            op == ReduceOpCuda::kSQUARED_MEAN)
+        {
+            xGrad[id] = yGrad[id / reduceSize] *
+                        reduceGradientOp<op>(x[id], y[id / reduceSize]) / reduceS
