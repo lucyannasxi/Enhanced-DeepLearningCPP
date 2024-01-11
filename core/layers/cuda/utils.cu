@@ -114,3 +114,21 @@ void runElementwiseCastFrontDevice(const float* x1, size_t size1,
         case Elementwise::kSUB:
             elementwiseCastFrontKernel<Elementwise::kSUB, 2>
                 <<<NUM_BLOCKS, BLOCK_SIZE>>>(x1, size, x2, reduceSize, y);
+            break;
+        case Elementwise::kMUL:
+            elementwiseCastFrontKernel<Elementwise::kMUL, 2>
+                <<<NUM_BLOCKS, BLOCK_SIZE>>>(x1, size, x2, reduceSize, y);
+            break;
+        case Elementwise::kDIV:
+            elementwiseCastFrontKernel<Elementwise::kDIV, 2>
+                <<<NUM_BLOCKS, BLOCK_SIZE>>>(x1, size, x2, reduceSize, y);
+            break;
+        }
+    }
+}
+
+}  // namespace utils
+}  // namespace cuda
+}  // namespace layers
+}  // namespace core
+}  // namespace graphdl
