@@ -88,4 +88,29 @@ void runElementwiseCastFrontDevice(const float* x1, size_t size1,
         case Elementwise::kADD:
             elementwiseCastFrontKernel<Elementwise::kADD, 1>
                 <<<NUM_BLOCKS, BLOCK_SIZE>>>(x1, size, x2, reduceSize, y);
-            
+            break;
+        case Elementwise::kSUB:
+            elementwiseCastFrontKernel<Elementwise::kSUB, 1>
+                <<<NUM_BLOCKS, BLOCK_SIZE>>>(x1, size, x2, reduceSize, y);
+            break;
+        case Elementwise::kMUL:
+            elementwiseCastFrontKernel<Elementwise::kMUL, 1>
+                <<<NUM_BLOCKS, BLOCK_SIZE>>>(x1, size, x2, reduceSize, y);
+            break;
+        case Elementwise::kDIV:
+            elementwiseCastFrontKernel<Elementwise::kDIV, 1>
+                <<<NUM_BLOCKS, BLOCK_SIZE>>>(x1, size, x2, reduceSize, y);
+            break;
+        }
+    }
+    else
+    {
+        switch (op)
+        {
+        case Elementwise::kADD:
+            elementwiseCastFrontKernel<Elementwise::kADD, 2>
+                <<<NUM_BLOCKS, BLOCK_SIZE>>>(x1, size, x2, reduceSize, y);
+            break;
+        case Elementwise::kSUB:
+            elementwiseCastFrontKernel<Elementwise::kSUB, 2>
+                <<<NUM_BLOCKS, BLOCK_SIZE>>>(x1, size, x2, reduceSize, y);
