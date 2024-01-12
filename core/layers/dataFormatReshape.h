@@ -58,4 +58,4 @@ Tensor::SPtr nchw2nhwc(const Tensor::SPtr& tensor);
 }  // namespace core
 }  // namespace graphdl
 
-#endif  // GRAPHDL_CORE_L
+#endif  // GRAPHDL_CORE_LAYERS_DATA_FORMAT_RESHAPE_H_
