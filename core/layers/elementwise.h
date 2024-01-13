@@ -95,4 +95,28 @@ namespace cuda
 void runElementwiseBackDevice(const float* x1, size_t size1, const float* x2,
                               size_t size2, float* y, Elementwise op);
 
-void runElementwiseBackGradientDevice(const float* x1, size_t siz
+void runElementwiseBackGradientDevice(const float* x1, size_t size1,
+                                      const float* x2, size_t size2,
+                                      const float* yGrad, float* x1Grad,
+                                      float* x2Grad, Elementwise op);
+
+void runElementwiseFrontDevice(const float* x1, size_t size1, const float* x2,
+                               size_t size2, float* y, Elementwise op);
+
+void runElementwiseFrontGradientDevice(const float* x1, size_t size1,
+                                       const float* x2, size_t size2,
+                                       const float* yGrad, float* x1Grad,
+                                       float* x2Grad, Elementwise op);
+
+}  // namespace cuda
+#endif
+
+void runElementwiseBackHost(const float* x1, size_t size1, const float* x2,
+                            size_t size2, float* y, Elementwise op);
+
+void runElementwiseBackGradientHost(const float* x1, size_t size1,
+                                    const float* x2, size_t size2,
+                                    const float* yG, float* x1G, float* x2G,
+                                    Elementwise op);
+
+void runEle
