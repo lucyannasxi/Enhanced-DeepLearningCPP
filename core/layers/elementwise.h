@@ -63,4 +63,36 @@ class ElementwiseFrontLayer : public DifferentiableLayer
     TensorMap gradients(Tensor::SPtr output, Tensor::SPtr outputGrad) override;
 
   private:
-    void execute(const std::vect
+    void execute(const std::vector<float*>& inputs,
+                 const std::vector<float*>& outputs,
+                 const InputDict& inputDict) override;
+
+    Elementwise mOp;
+    ElementwiseFun mFun;
+};
+
+class ElementwiseFrontGradientLayer : public Layer
+{
+  public:
+    ElementwiseFrontGradientLayer(ID id, const Tensor::SPtr& t1,
+                                  const Tensor::SPtr& t2, Tensor::SPtr out,
+                                  Tensor::SPtr outGrad, Elementwise op);
+
+  private:
+    static std::vector<Tensor::SPtr> createOutputs(Tensor::SPtr, Tensor::SPtr);
+
+    void execute(const std::vector<float*>& inputs,
+                 const std::vector<float*>& outputs,
+                 const InputDict& inputDict) override;
+
+    Elementwise mOp;
+    ElementwiseFun mFun1, mFun2;
+};
+
+#ifdef CUDA_AVAILABLE
+namespace cuda
+{
+void runElementwiseBackDevice(const float* x1, size_t size1, const float* x2,
+                              size_t size2, float* y, Elementwise op);
+
+void runElementwiseBackGradientDevice(const float* x1, size_t siz
