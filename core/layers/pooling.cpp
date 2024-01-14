@@ -61,4 +61,32 @@ void runPooling2DHost(const float* x, float* y, const std::vector<int>& inShape,
                       PaddingType padding, DataFormat dataFormat)
 {
 #define LAUNCH(format, pad)                                                    \
-    {                                                     
+    {                                                                          \
+        if (padding == PaddingType::kVALID)                                    \
+            pool_##pad##_##format<PaddingType::kVALID>(                        \
+                x, y, inShape, outShape, kernel, strides);                     \
+        else                                                                   \
+            pool_##pad##_##format<PaddingType::kSAME>(x, y, inShape, outShape, \
+                                                      kernel, strides);        \
+    }
+
+    if (dataFormat == DataFormat::kNHWC)
+    {
+        if (pooling == PoolingType::kMAX)
+            LAUNCH(nhwc, max)
+        else  // pooling == PoolingType::kAVERAGE
+            LAUNCH(nhwc, avg)
+    }
+    else  // dataFormat == DataFormat::kNCHW
+    {
+        if (pooling == PoolingType::kMAX)
+            LAUNCH(nchw, max)
+        else  // pooling == PoolingType::kAVERAGE
+            LAUNCH(nchw, avg)
+    }
+
+#undef LAUNCH
+}
+
+void runPooling2DGradientHost(const float* x, const float* y, const float* yG,
+                              float* xG, const std::vec
