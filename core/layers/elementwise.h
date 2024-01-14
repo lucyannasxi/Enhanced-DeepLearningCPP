@@ -167,4 +167,6 @@ Tensor::SPtr operator/(float, const Tensor::SPtr&);
 Tensor::SPtr operator/(const Tensor::SPtr&, float);
 
 }  // namespace core
-}  // namespace
+}  // namespace graphdl
+
+#endif  // GRAPHDL_CORE_LAYERS_ELEMENTWISE_H_
