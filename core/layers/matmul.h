@@ -54,3 +54,10 @@ void runMatmulGradientHost(const float* x1, const float* x2, const float* yGrad,
                            float* x1Grad, float* x2Grad, int n, int m, int k);
 
 }  // namespace layers
+
+Tensor::SPtr matmul(const Tensor::SPtr&, const Tensor::SPtr&);
+
+}  // namespace core
+}  // namespace graphdl
+
+#endif  // GRAPHDL_CORE_LAYERS_MATMUL_H_
