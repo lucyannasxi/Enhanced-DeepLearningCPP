@@ -119,4 +119,27 @@ void runElementwiseBackGradientHost(const float* x1, size_t size1,
                                     const float* yG, float* x1G, float* x2G,
                                     Elementwise op);
 
-void runEle
+void runElementwiseFrontHost(const float* x1, size_t size1, const float* x2,
+                             size_t size2, float* y, Elementwise op);
+
+void runElementwiseFrontGradientHost(const float* x1, size_t size1,
+                                     const float* x2, size_t size2,
+                                     const float* yG, float* x1G, float* x2G,
+                                     Elementwise op);
+
+}  // namespace layers
+
+Tensor::SPtr elementwiseBack(const Tensor::SPtr& t1, const Tensor::SPtr& t2,
+                             layers::Elementwise op);
+
+Tensor::SPtr elementwiseFront(const Tensor::SPtr& t1, const Tensor::SPtr& t2,
+                              layers::Elementwise op);
+
+Tensor::SPtr elementwise(const Tensor::SPtr& t1, const Tensor::SPtr& t2,
+                         layers::Elementwise op);
+
+Tensor::SPtr add(const Tensor::SPtr&, const Tensor::SPtr&);
+Tensor::SPtr add(float, const Tensor::SPtr&);
+Tensor::SPtr add(const Tensor::SPtr&, float);
+Tensor::SPtr operator+(const Tensor::SPtr&, const Tensor::SPtr&);
+Tensor::SPtr operator+(float, const Tensor::SPtr
