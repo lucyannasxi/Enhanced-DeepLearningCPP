@@ -18,4 +18,39 @@ class MatmulLayer : public DifferentiableLayer
 
   private:
     void execute(const std::vector<float*>& inputs,
-                 const std::v
+                 const std::vector<float*>& outputs,
+                 const InputDict& inputDict) override;
+};
+
+class MatmulGradientLayer : public Layer
+{
+  public:
+    MatmulGradientLayer(ID id, const Tensor::SPtr& m1, const Tensor::SPtr& m2,
+                        const Tensor::SPtr& out, const Tensor::SPtr& outGrad);
+
+  private:
+    void execute(const std::vector<float*>& inputs,
+                 const std::vector<float*>& outputs,
+                 const InputDict& inputDict) override;
+};
+
+#ifdef CUDA_AVAILABLE
+namespace cuda
+{
+void runMatmulDevice(const float* x1, const float* x2, float* y, int n, int m,
+                     int k);
+
+void runMatmulGradientDevice(const float* x1, const float* x2,
+                             const float* yGrad, float* x1Grad, float* x2Grad,
+                             int n, int m, int k);
+
+}  // namespace cuda
+#endif
+
+void runMatmulHost(const float* x1, const float* x2, float* y, int n, int m,
+                   int k);
+
+void runMatmulGradientHost(const float* x1, const float* x2, const float* yGrad,
+                           float* x1Grad, float* x2Grad, int n, int m, int k);
+
+}  // namespace layers
