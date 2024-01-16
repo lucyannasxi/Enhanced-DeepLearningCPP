@@ -113,4 +113,39 @@ void runPooling2DGradientHost(const float* x, const float* y, const float* yG,
         else  // pooling == PoolingType::kAVERAGE
             LAUNCH(nhwc, avg)
     }
- 
+    else  // dataFormat == DataFormat::kNCHW
+    {
+        if (pooling == PoolingType::kMAX)
+            LAUNCH(nchw, max)
+        else  // pooling == PoolingType::kAVERAGE
+            LAUNCH(nchw, avg)
+    }
+
+#undef LAUNCH
+}
+
+}  // namespace
+
+PaddingType str2padding(const std::string& s)
+{
+    if (s == "SAME" || s == "same") return PaddingType::kSAME;
+    if (s == "VALID" || s == "valid") return PaddingType::kVALID;
+
+    throw std::runtime_error(
+        R"(Wrong padding type, must be one of: "SAME", "VALID".)");
+}
+
+DataFormat str2format(const std::string& s)
+{
+    if (s == "NHWC" || s == "nhwc") return DataFormat::kNHWC;
+    if (s == "NCHW" || s == "nchw") return DataFormat::kNCHW;
+
+    throw std::runtime_error(
+        R"(Wrong data format type, must be one of: "NHWC", "NCHW".)");
+}
+
+Pooling2DLayer::Pooling2DLayer(ID id, const Tensor::SPtr& t,
+                               PoolingType pooling,
+                               const std::vector<int>& kernel,
+                               const std::vector<int>& strides,
+                
