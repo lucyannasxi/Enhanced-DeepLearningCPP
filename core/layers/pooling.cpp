@@ -148,4 +148,37 @@ Pooling2DLayer::Pooling2DLayer(ID id, const Tensor::SPtr& t,
                                PoolingType pooling,
                                const std::vector<int>& kernel,
                                const std::vector<int>& strides,
-                
+                               PaddingType padding, DataFormat dataFormat)
+    : DifferentiableLayer(
+          id, {t},
+          {createPoolingOutput(t, kernel, strides, padding, dataFormat)}),
+      mPooling(pooling),
+      mKernelWindow(kernel),
+      mStrides(strides),
+      mPadding(padding),
+      mDataFormat(dataFormat),
+      mGpuParams(MemoryType::kHOST_MEMORY, 13)
+{
+}
+
+Layer::TensorMap Pooling2DLayer::gradients(Tensor::SPtr out,
+                                           Tensor::SPtr outGrad)
+{
+    assert(out == mOutputs[0]);
+
+    Tensor::SPtr input = mInputs[0].lock();
+    Layer::SPtr layer = createLayer<Pooling2DGradientLayer>(
+        input, out, outGrad, mPooling, mKernelWindow, mStrides, mPadding,
+        mDataFormat);
+    return {{input, layer->getOutputs()[0]}};
+}
+
+void Pooling2DLayer::execute(const std::vector<float*>& inputs,
+                             const std::vector<float*>& outputs,
+                             const InputDict& /*inputDict*/)
+{
+    float* x = inputs[0];
+    float* y = outputs[0];
+
+    Tensor::SPtr tX = getInputs()[0];
+    std::vector<int> inS
