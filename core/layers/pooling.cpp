@@ -181,4 +181,32 @@ void Pooling2DLayer::execute(const std::vector<float*>& inputs,
     float* y = outputs[0];
 
     Tensor::SPtr tX = getInputs()[0];
-    std::vector<int> inS
+    std::vector<int> inShape = tX->getShape();
+    std::vector<int> outShape = getOutputs()[0]->getShape();
+
+    if (tX->getType() == MemoryType::kHOST_MEMORY)
+        runPooling2DHost(x, y, inShape, outShape, mKernelWindow, mStrides,
+                         mPooling, mPadding, mDataFormat);
+#ifdef CUDA_AVAILABLE
+    else  // inTensor->getType() == MemoryType::kDEVICE_MEMORY
+        cuda::runPool2DDevice(x, y, mGpuParams.getValues(), mPooling, mPadding,
+                              mDataFormat);
+#endif
+}
+
+void Pooling2DLayer::initialize()
+{
+    std::vector<int> inShape = getInputs()[0]->getShape();
+    std::vector<int> outShape = getOutputs()[0]->getShape();
+
+    if (getInputs()[0]->getType() == MemoryType::kHOST_MEMORY)
+    {
+    }
+#ifdef CUDA_AVAILABLE
+    else
+    {
+        mGpuParams.allocate();
+        int* values = mGpuParams.getValues();
+        std::memcpy(values, inShape.data(), 4 * sizeof(int));
+        std::memcpy(values + 4, outShape.data(), 4 * sizeof(int));
+        std::memcpy(val
