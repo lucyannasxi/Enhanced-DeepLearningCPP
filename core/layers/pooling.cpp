@@ -244,4 +244,33 @@ void Pooling2DGradientLayer::execute(const std::vector<float*>& inputs,
     float* yGrad = inputs[2];
     float* xGrad = outputs[0];
 
-    Tensor::SPtr tX = getInputs
+    Tensor::SPtr tX = getInputs()[0];
+    std::vector<int> inShape = tX->getShape();
+    std::vector<int> outShape = getInputs()[1]->getShape();
+
+    if (tX->getType() == MemoryType::kHOST_MEMORY)
+        runPooling2DGradientHost(x, y, yGrad, xGrad, inShape, outShape,
+                                 mKernelWindow, mStrides, mPooling, mPadding,
+                                 mDataFormat);
+#ifdef CUDA_AVAILABLE
+    else  // outGradTensor->getType() == MemoryType::kDEVICE_MEMORY
+        cuda::runPool2DGradientDevice(x, y, yGrad, xGrad,
+                                      mGpuParams.getValues(), mPooling,
+                                      mPadding, mDataFormat);
+#endif
+}
+
+void Pooling2DGradientLayer::initialize()
+{
+    std::vector<int> inShape = getInputs()[0]->getShape();
+    std::vector<int> outShape = getInputs()[1]->getShape();
+
+    if (getInputs()[0]->getType() == MemoryType::kHOST_MEMORY)
+    {
+    }
+#ifdef CUDA_AVAILABLE
+    else
+    {
+        mGpuParams.allocate();
+        int* values = mGpuParams.getValues();
+        std::memcpy(values, 
