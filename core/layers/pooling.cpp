@@ -209,4 +209,39 @@ void Pooling2DLayer::initialize()
         int* values = mGpuParams.getValues();
         std::memcpy(values, inShape.data(), 4 * sizeof(int));
         std::memcpy(values + 4, outShape.data(), 4 * sizeof(int));
-        std::memcpy(val
+        std::memcpy(values + 8, mKernelWindow.data(), 2 * sizeof(int));
+        std::memcpy(values + 10, mStrides.data(), 2 * sizeof(int));
+    }
+#endif
+}
+
+Pooling2DLayer::~Pooling2DLayer()
+{
+    mGpuParams.free();
+}
+
+Pooling2DGradientLayer::Pooling2DGradientLayer(
+    ID id, const Tensor::SPtr& t, const Tensor::SPtr& out,
+    const Tensor::SPtr& outGrad, PoolingType pooling, std::vector<int> kernel,
+    std::vector<int> strides, PaddingType padding, DataFormat dataFormat)
+    : Layer(id, {t, out, outGrad},
+            {createTensor("", t->getShape(), t->getType())}),
+      mPooling(pooling),
+      mKernelWindow(std::move(kernel)),
+      mStrides(std::move(strides)),
+      mPadding(padding),
+      mDataFormat(dataFormat),
+      mGpuParams(MemoryType::kHOST_MEMORY, 13)
+{
+}
+
+void Pooling2DGradientLayer::execute(const std::vector<float*>& inputs,
+                                     const std::vector<float*>& outputs,
+                                     const InputDict& /*inputDict*/)
+{
+    float* x = inputs[0];
+    float* y = inputs[1];
+    float* yGrad = inputs[2];
+    float* xGrad = outputs[0];
+
+    Tensor::SPtr tX = getInputs
