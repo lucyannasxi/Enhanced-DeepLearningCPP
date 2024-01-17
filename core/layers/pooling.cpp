@@ -273,4 +273,34 @@ void Pooling2DGradientLayer::initialize()
     {
         mGpuParams.allocate();
         int* values = mGpuParams.getValues();
-        std::memcpy(values, 
+        std::memcpy(values, inShape.data(), 4 * sizeof(int));
+        std::memcpy(values + 4, outShape.data(), 4 * sizeof(int));
+        std::memcpy(values + 8, mKernelWindow.data(), 2 * sizeof(int));
+        std::memcpy(values + 10, mStrides.data(), 2 * sizeof(int));
+    }
+#endif
+}
+
+Pooling2DGradientLayer::~Pooling2DGradientLayer()
+{
+    mGpuParams.free();
+}
+
+}  // namespace layers
+
+Tensor::SPtr pooling2D(const Tensor::SPtr& t, layers::PoolingType pooling,
+                       const std::vector<int>& kernel,
+                       const std::vector<int>& strides,
+                       layers::PaddingType padding,
+                       layers::DataFormat dataFormat)
+{
+    if (t->getShape().size() != 4)
+        throw std::runtime_error("pool2D: wrong input shape");
+    if (kernel.empty() || kernel.size() > 2)
+        throw std::runtime_error("pool2D: wrong kernel");
+    if (strides.empty() || strides.size() > 2)
+        throw std::runtime_error("pool2D: wrong strides");
+
+    for (int d : kernel)
+        if (d <= 0)
+            throw std::runtime_error("pool2D: kernel
