@@ -303,4 +303,30 @@ Tensor::SPtr pooling2D(const Tensor::SPtr& t, layers::PoolingType pooling,
 
     for (int d : kernel)
         if (d <= 0)
-            throw std::runtime_error("pool2D: kernel
+            throw std::runtime_error("pool2D: kernel dims must be positive");
+    for (int d : strides)
+        if (d <= 0)
+            throw std::runtime_error("pool2D: stride dims must be positive");
+
+    std::vector<int> kernel2 = kernel;
+    if (kernel2.size() == 1) kernel2.push_back(kernel2[0]);
+    std::vector<int> strides2 = strides;
+    if (strides2.size() == 1) strides2.push_back(strides2[0]);
+
+    Layer::SPtr layer = createLayer<layers::Pooling2DLayer>(
+        t, pooling, kernel2, strides2, padding, dataFormat);
+    return layer->getOutputs()[0];
+}
+
+}  // namespace core
+
+ITensorPtr maxPool2D(const ITensorPtr& tensor, const std::vector<int>& kernel,
+                     const std::vector<int>& strides,
+                     const std::string& padding, const std::string& format)
+{
+    core::layers::PaddingType pad = core::layers::str2padding(padding);
+    core::layers::DataFormat dataFormat = core::layers::str2format(format);
+
+    core::Tensor::SPtr t = core::castITensorPtr(tensor)->get();
+    return core::makeAbstractTensor(core::pooling2D(
+        t, core::layers::PoolingType::kMAX, kerne
