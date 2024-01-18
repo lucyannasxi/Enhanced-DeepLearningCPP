@@ -27,4 +27,40 @@ enum class DataFormat
     kNCHW = 1
 };
 
-PaddingType str2padding(const std::s
+PaddingType str2padding(const std::string& s);
+
+DataFormat str2format(const std::string& s);
+
+class Pooling2DLayer : public DifferentiableLayer
+{
+  public:
+    Pooling2DLayer(ID id, const Tensor::SPtr& t, PoolingType pooling,
+                   const std::vector<int>& kernel,
+                   const std::vector<int>& strides, PaddingType padding,
+                   DataFormat dataFormat);
+
+    TensorMap gradients(Tensor::SPtr out, Tensor::SPtr outGrad) override;
+
+    void initialize() override;
+
+    ~Pooling2DLayer() override;
+
+  private:
+    void execute(const std::vector<float*>& inputs,
+                 const std::vector<float*>& outputs,
+                 const InputDict& inputDict) override;
+
+    PoolingType mPooling;
+    std::vector<int> mKernelWindow;
+    std::vector<int> mStrides;
+    PaddingType mPadding;
+    DataFormat mDataFormat;
+    Memory<int> mGpuParams;
+};
+
+class Pooling2DGradientLayer : public Layer
+{
+  public:
+    Pooling2DGradientLayer(ID id, const Tensor::SPtr& t,
+                           const Tensor::SPtr& out, const Tensor::SPtr& outGrad,
+       
