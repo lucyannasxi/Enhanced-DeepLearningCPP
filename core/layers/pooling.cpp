@@ -329,4 +329,20 @@ ITensorPtr maxPool2D(const ITensorPtr& tensor, const std::vector<int>& kernel,
 
     core::Tensor::SPtr t = core::castITensorPtr(tensor)->get();
     return core::makeAbstractTensor(core::pooling2D(
-        t, core::layers::PoolingType::kMAX, kerne
+        t, core::layers::PoolingType::kMAX, kernel, strides, pad, dataFormat));
+}
+
+ITensorPtr avgPool2D(const ITensorPtr& tensor, const std::vector<int>& kernel,
+                     const std::vector<int>& strides,
+                     const std::string& padding, const std::string& format)
+{
+    core::layers::PaddingType pad = core::layers::str2padding(padding);
+    core::layers::DataFormat dataFormat = core::layers::str2format(format);
+
+    core::Tensor::SPtr t = core::castITensorPtr(tensor)->get();
+    return core::makeAbstractTensor(
+        core::pooling2D(t, core::layers::PoolingType::kAVERAGE, kernel, strides,
+                        pad, dataFormat));
+}
+
+}  // namespace graphdl
