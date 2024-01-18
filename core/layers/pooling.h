@@ -63,4 +63,34 @@ class Pooling2DGradientLayer : public Layer
   public:
     Pooling2DGradientLayer(ID id, const Tensor::SPtr& t,
                            const Tensor::SPtr& out, const Tensor::SPtr& outGrad,
-       
+                           PoolingType pooling, std::vector<int> kernel,
+                           std::vector<int> strides, PaddingType padding,
+                           DataFormat dataFormat);
+
+    void initialize() override;
+
+    ~Pooling2DGradientLayer() override;
+
+  private:
+    void execute(const std::vector<float*>& inputs,
+                 const std::vector<float*>& outputs,
+                 const InputDict& inputDict) override;
+
+    PoolingType mPooling;
+    std::vector<int> mKernelWindow;
+    std::vector<int> mStrides;
+    PaddingType mPadding;
+    DataFormat mDataFormat;
+    Memory<int> mGpuParams;
+};
+
+#ifdef CUDA_AVAILABLE
+namespace cuda
+{
+void runPool2DDevice(const float* x, float* y, const int* params,
+                     PoolingType pooling, PaddingType padding,
+                     DataFormat dataFormat);
+
+void runPool2DGradientDevice(const float* x, const float* y, const float* yG,
+                             float* xG, const int* params, PoolingType pooling,
+                             PaddingType p
