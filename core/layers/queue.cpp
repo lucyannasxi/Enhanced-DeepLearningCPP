@@ -50,4 +50,9 @@ ITensorPtr queue(const std::vector<ITensorPtr>& tensors)
     std::vector<core::Tensor::SPtr> ts;
     ts.reserve(tensors.size());
     for (const ITensorPtr& iTensor : tensors)
-        ts.push_back(
+        ts.push_back(core::castITensorPtr(iTensor)->get());
+
+    return makeAbstractTensor(core::queue(ts));
+}
+
+}  // namespace graphdl
