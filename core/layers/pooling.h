@@ -93,4 +93,20 @@ void runPool2DDevice(const float* x, float* y, const int* params,
 
 void runPool2DGradientDevice(const float* x, const float* y, const float* yG,
                              float* xG, const int* params, PoolingType pooling,
-                             PaddingType p
+                             PaddingType padding, DataFormat dataFormat);
+
+}  // namespace cuda
+#endif
+
+}  // namespace layers
+
+Tensor::SPtr pooling2D(const Tensor::SPtr& t, layers::PoolingType pooling,
+                       const std::vector<int>& kernel,
+                       const std::vector<int>& strides,
+                       layers::PaddingType padding,
+                       layers::DataFormat dataFormat);
+
+}  // namespace core
+}  // namespace graphdl
+
+#endif  // GRAPHDL_CORE_LAYERS_POOLING_H_
