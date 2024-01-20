@@ -59,4 +59,38 @@ class ReduceFrontLayer : public DifferentiableLayer
     TensorMap gradients(Tensor::SPtr out, Tensor::SPtr outGrad) override;
 
   private:
-    void execute(const 
+    void execute(const std::vector<float*>& inputs,
+                 const std::vector<float*>& outputs,
+                 const InputDict& inputDict) override;
+
+    int mNumAxes;
+    ReduceType mReduceType;
+};
+
+class ReduceFrontGradientLayer : public Layer
+{
+  public:
+    ReduceFrontGradientLayer(ID id, const Tensor::SPtr& in,
+                             const Tensor::SPtr& out,
+                             const Tensor::SPtr& outGrad, int numAxes,
+                             ReduceType reduceType);
+
+  private:
+    void execute(const std::vector<float*>& inputs,
+                 const std::vector<float*>& outputs,
+                 const InputDict& inputDict) override;
+
+    int mNumAxes;
+    ReduceType mReduceType;
+};
+
+#ifdef CUDA_AVAILABLE
+namespace cuda
+{
+void runReduceBackDevice(const float* in, float* out, size_t outSize,
+                         size_t reduceSize, ReduceType reduceType);
+
+void runReduceBackGradientDevice(const float* in, const float* out,
+                                 const float* outGrad, float* inGrad,
+                                 size_t outSize, size_t reduceSize,
+           
