@@ -57,4 +57,10 @@ Tensor::SPtr reshape(const Tensor::SPtr& t, const TensorShape& shape)
 
 }  // namespace core
 
-ITensorPtr reshape(co
+ITensorPtr reshape(const ITensorPtr& iTensor, const Shape& shape)
+{
+    core::AbstractTensor::Ptr t = core::castITensorPtr(iTensor);
+    return makeAbstractTensor(core::reshape(t->get(), shape));
+}
+
+}  // namespace graphdl
