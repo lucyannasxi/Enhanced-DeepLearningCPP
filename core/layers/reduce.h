@@ -93,4 +93,28 @@ void runReduceBackDevice(const float* in, float* out, size_t outSize,
 void runReduceBackGradientDevice(const float* in, const float* out,
                                  const float* outGrad, float* inGrad,
                                  size_t outSize, size_t reduceSize,
-           
+                                 ReduceType reduceType);
+
+void runReduceFrontDevice(const float* in, float* out, size_t outSize,
+                          size_t reduceSize, ReduceType reduceType);
+
+void runReduceFrontGradientDevice(const float* in, const float* out,
+                                  const float* outGrad, float* inGrad,
+                                  size_t outSize, size_t reduceSize,
+                                  ReduceType reduceType);
+
+}  // namespace cuda
+#endif
+
+void runReduceBackHost(const float* in, float* out, size_t outSize,
+                       size_t reduceSize, ReduceType reduceType);
+
+void runReduceBackGradientHost(const float* in, const float* out,
+                               const float* outGrad, float* inGrad,
+                               size_t outSize, size_t reduceSize,
+                               ReduceType reduceType);
+
+void runReduceFrontHost(const float* in, float* out, size_t outSize,
+                        size_t reduceSize, ReduceType reduceType);
+
+void runReduceFrontGradientHost(const float* in, con
