@@ -117,4 +117,21 @@ void runReduceBackGradientHost(const float* in, const float* out,
 void runReduceFrontHost(const float* in, float* out, size_t outSize,
                         size_t reduceSize, ReduceType reduceType);
 
-void runReduceFrontGradientHost(const float* in, con
+void runReduceFrontGradientHost(const float* in, const float* out,
+                                const float* outGrad, float* inGrad,
+                                size_t outSize, size_t reduceSize,
+                                ReduceType reduceType);
+
+}  // namespace layers
+
+Tensor::SPtr reduceBack(const Tensor::SPtr& t, int numAxes,
+                        layers::ReduceType reduceType);
+
+Tensor::SPtr reduceFront(const Tensor::SPtr& t, int numAxes,
+                         layers::ReduceType reduceType);
+
+}  // namespace core
+
+}  // namespace graphdl
+
+#endif  // GRAPHDL_CORE_LAYERS_REDUCE_SUM_H_
