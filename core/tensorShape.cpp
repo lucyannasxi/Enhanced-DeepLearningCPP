@@ -70,4 +70,25 @@ TensorShape::operator std::vector<int>() const
     return mDims;
 }
 
-TensorShape::iterator TensorShape::begin(
+TensorShape::iterator TensorShape::begin()
+{
+    return mDims.begin();
+}
+
+TensorShape::iterator TensorShape::end()
+{
+    return mDims.end();
+}
+
+TensorShape TensorShape::subshape(int start, int size)
+{
+    assert(start >= 0);
+    assert(start + size <= mDims.size());
+
+    std::vector<int> s(size);
+    for (int i = 0; i < size; ++i) s[i] = mDims[start + i];
+    return TensorShape(s);
+}
+
+}  // namespace core
+}  // namespace graphdl
