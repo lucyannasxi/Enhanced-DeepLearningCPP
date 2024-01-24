@@ -26,4 +26,29 @@ class TensorShape
     bool operator!=(const TensorShape& other) const;
 
     int& operator[](std::size_t pos);
-    co
+    const int& operator[](std::size_t pos) const;
+
+    unsigned size() const;
+
+    size_t getCount() const;
+
+    operator Shape() const;
+    operator std::vector<int>() const;
+
+    iterator begin();
+    iterator end();
+
+    //! \fn subshape
+    //! \brief Returns shape cut from this shape.
+    //! Returned shape is [mDims[start], ..., mDims[start + size - 1]].
+    //!
+    TensorShape subshape(int start, int size);
+
+  private:
+    std::vector<int> mDims;
+};
+
+}  // namespace core
+}  // namespace graphdl
+
+#endif  // GRAPHDL_CORE_TENSOR_SHAPE_H_
