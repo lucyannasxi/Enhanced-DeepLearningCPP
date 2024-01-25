@@ -16,4 +16,8 @@ Tensor::SPtr Trainer::optimize(const Tensor::SPtr& tensor) const
     GradientBuilder builder(tensor, weights);
     GradientBuilder::TensorMap grads = builder.createGradients();
 
-    return parseGradients
+    return parseGradients(grads);
+}
+
+}  // namespace core
+}  // namespace graphdl
