@@ -56,4 +56,4 @@ ITrainerPtr adagrad(float lr, float eps)
     return core::makeAbstractTrainer(std::move(t));
 }
 }  // namespace train
-}  // namespa
+}  // namespace graphdl
