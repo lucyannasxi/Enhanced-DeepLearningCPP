@@ -16,4 +16,13 @@ class GradientDescentTrainer : public Trainer
 
   private:
     Tensor::SPtr parseGradients(
-        const Gradient
+        const GradientBuilder::TensorMap& grads) const override;
+
+    float mLearningRate;
+};
+
+}  // namespace trainers
+}  // namespace core
+}  // namespace graphdl
+
+#endif  // GRAPHDL_CORE_TRAINERS_GRADIENT_DESCENT_H_
