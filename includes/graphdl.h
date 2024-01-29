@@ -83,4 +83,48 @@ class ITensor
 
     //! \fn getShape
     //! \brief Returns shape of the tensor.
-    
+    //!
+    virtual Shape getShape() const = 0;
+
+    //! \fn eval
+    //! \brief Evaulates tensor.
+    //! \param inputs Map from names of input tensors to values.
+    //!
+    virtual HostTensor eval(const InputDict& inputs) = 0;
+
+    virtual ~ITensor() {}
+};
+
+//! \class IGraph
+//! \brief Interface representing computational graph.
+//!
+class IGraph
+{
+  public:
+    //! \fn getName
+    //! \brief Returns name of the graph.
+    //!
+    virtual std::string getName() const = 0;
+
+    //! \fn setName
+    //! \brief Sets new name for the graph.
+    //!
+    virtual void setName(const std::string& name) = 0;
+
+    //! \fn getInputs
+    //! \brief Returns map of all inputs to the graph.
+    //!
+    virtual std::map<std::string, ITensorPtr> getInputs() const = 0;
+
+    //! \fn getWeights
+    //! \brief Returns map of all weights in the graph.
+    //!
+    virtual std::map<std::string, ITensorPtr> getWeights() const = 0;
+
+    virtual ~IGraph() {}
+};
+
+//! \class IInitializer
+//! \brief Interface representing methods for initializing weights.
+//!
+class IInitializ
