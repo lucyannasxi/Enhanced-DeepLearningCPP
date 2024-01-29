@@ -158,4 +158,29 @@ IInitializerPtr constantInitializer(float value);
 //! \param max Maximal value of distribution.
 //! \param seed Initial seed for pseudo-random generator.
 //!
-IInitializerPtr uniformInitializer(float min, fl
+IInitializerPtr uniformInitializer(float min, float max, size_t seed);
+
+//! \fn IInitializerPtr normalInitializer(float mean, float stddev, size_t seed)
+//! \brief Creates initializer that initializes with normal distribution.
+//! \param mean Mean of normal distribution.
+//! \param stddev Standard deviation of normal distribution.
+//! \param seed Initial seed for pseudo-random generator.
+//!
+IInitializerPtr normalInitializer(float mean, float stddev, size_t seed);
+
+//! \fn IGraphPtr createGraph(const std::string& name)
+//! \brief This function creates new IGraph object.
+//! \param name Name of the graph.
+//! \details If graph with the same name already exists,
+//!   this will return nullptr.
+//!
+IGraphPtr createGraph(const std::string& name);
+
+//! \fn void setDefaultGraph(const IGraphPtr& graph)
+//! \brief This function sets graph as a default graph.
+//! \param graph Graph to be set as the default.
+//! \details Later all new operations will be added to this graph.
+//!
+void setDefaultGraph(const IGraphPtr& graph);
+
+//! \fn IGraphPtr get
