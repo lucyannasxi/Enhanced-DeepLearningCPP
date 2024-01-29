@@ -127,4 +127,35 @@ class IGraph
 //! \class IInitializer
 //! \brief Interface representing methods for initializing weights.
 //!
-class IInitializ
+class IInitializer
+{
+  public:
+    //! \fn init
+    //! \brief Initializes tensor.
+    //! \param memory Pointer to memory of the tensor.
+    //! \param shape Shape of the tensor.
+    //! \param location Location of the tensor.
+    //!
+    virtual void init(float* memory, const Shape& shape,
+                      MemoryLocation location) const = 0;
+};
+
+//! \typedef IInitializerPtr
+//! \brief Shared pointer to IInitializer.
+//!
+using IInitializerPtr = SharedPtr<IInitializer>;
+
+//! \fn IInitializerPtr constantInitializer(float value)
+//! \brief Creates initializer that initializes every element to given value.
+//! \param value Value to initialize elements with.
+//! \return
+//!
+IInitializerPtr constantInitializer(float value);
+
+//! \fn IInitializerPtr uniformInitializer(float min, float max, size_t seed)
+//! \brief Creates initializer that initializes with uniform distribution.
+//! \param min Minimal value of distribution.
+//! \param max Maximal value of distribution.
+//! \param seed Initial seed for pseudo-random generator.
+//!
+IInitializerPtr uniformInitializer(float min, fl
