@@ -183,4 +183,29 @@ IGraphPtr createGraph(const std::string& name);
 //!
 void setDefaultGraph(const IGraphPtr& graph);
 
-//! \fn IGraphPtr get
+//! \fn IGraphPtr getDefaultGraph()
+//! \brief This function returns current default graph.
+//!
+IGraphPtr getDefaultGraph();
+
+//! \fn ITensorPtr createInput(const std::string& name, const Shape& shape,
+//!                            MemoryLocation location)
+//! \brief This function creates new input in the default graph.
+//! \param name Name of the input.
+//! \param shape Dimensions of the input.
+//! \param location Location of the input.
+//! \return Tensor representing input.
+//!
+ITensorPtr createInput(const std::string& name, const Shape& shape,
+                       MemoryLocation location);
+
+//! \fn ITensorPtr createWeights(const std::string& name, const Shape& shape,
+//!                              const IInitializerPtr& initializer,
+//!                              MemoryLocation location)
+//! \brief This function creates new weights in current graph.
+//! \param name Name og the weights.
+//! \param shape Dimensions of the weights.
+//! \param initializer Initializer for the weights.
+//! \param location Location of the weights.
+//!
+ITensorPtr createWeights
