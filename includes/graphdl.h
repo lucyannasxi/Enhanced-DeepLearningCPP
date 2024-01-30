@@ -208,4 +208,28 @@ ITensorPtr createInput(const std::string& name, const Shape& shape,
 //! \param initializer Initializer for the weights.
 //! \param location Location of the weights.
 //!
-ITensorPtr createWeights
+ITensorPtr createWeights(const std::string& name, const Shape& shape,
+                         const IInitializerPtr& initializer,
+                         MemoryLocation location);
+
+//! \fn void initializeGraph()
+//! \brief Initializes graph (i.e. initializes all weights).
+//! \details This has to be run before evaluating anything.
+//!
+void initializeGraph();
+
+//! \fn std::vector<HostTensor> eval(const std::vector<ITensorPtr>& tensors,
+//!                                  const InputDict& inputs)
+//! \brief Evaluates all tensors.
+//! \param tensors Vector of tensors to evaluate.
+//! \param inputs Map of input values.
+//!
+std::vector<HostTensor> eval(const std::vector<ITensorPtr>& tensors,
+                             const InputDict& inputs);
+
+//! \fn std::map<ITensorPtr, ITensorPtr> gradients(const ITensorPtr& iTensor)
+//! \brief Creates part of graph responsible for calculating gradients.
+//! \param iTensor Tensor for which gradients will be calculated (i.e. loss).
+//! \return Map from weights name to tensor representing gradient.
+//!
+std::map<ITens
