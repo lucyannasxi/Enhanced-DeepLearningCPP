@@ -123,4 +123,49 @@ ITensorPtr neg(const ITensorPtr& t);
 //! \fn ITensorPtr reciprocal(const ITensorPtr& t)
 //! \brief Reverses each number in tensor.
 //!
-ITensorPtr reciprocal(const ITen
+ITensorPtr reciprocal(const ITensorPtr& t);
+
+//! \fn ITensorPtr log(const ITensorPtr& t)
+//! \brief Calculates pointwise natural logarithm.
+//!
+ITensorPtr log(const ITensorPtr& t);
+
+//! \fn ITensorPtr sqrt(const ITensorPtr& t)
+//! \brief Calculates pointwise square root.
+//!
+ITensorPtr sqrt(const ITensorPtr& t);
+
+//! \fn ITensorPtr exp(const ITensorPtr& t)
+//! \brief Calculates pointwise exponent.
+//!
+ITensorPtr exp(const ITensorPtr& t);
+
+//! \fn ITensorPtr leaky_relu(const ITensorPtr& t)
+//! \brief Preforms leaky relu.
+//!
+ITensorPtr leaky_relu(const ITensorPtr& t);
+
+//! \fn ITensorPtr relu6(const ITensorPtr& t)
+//! \brief Preforms relu6.
+//!
+ITensorPtr relu6(const ITensorPtr& t);
+
+//! \fn ITensorPtr elu(const ITensorPtr& t)
+//! \brief Performs elu.
+//!
+ITensorPtr elu(const ITensorPtr& t);
+
+//! \fn ITensorPtr softplus(const ITensorPtr& t)
+//! \brief Preforms softplus.
+//!
+ITensorPtr softplus(const ITensorPtr& t);
+
+//! \fn ITensorPtr softsign(const ITensorPtr& t)
+//! \brief Performs softsign.
+//!
+ITensorPtr softsign(const ITensorPtr& t);
+
+///@}
+
+//! \fn ITensorPtr assign(const ITensorPtr& dest, const ITensorPtr& src)
+//! \brief S
