@@ -168,4 +168,28 @@ ITensorPtr softsign(const ITensorPtr& t);
 ///@}
 
 //! \fn ITensorPtr assign(const ITensorPtr& dest, const ITensorPtr& src)
-//! \brief S
+//! \brief Sets dest to value in src, returns empty tensor.
+//! Note that if dest tensor is not weights then its content
+//!     will be reseted at the next computation.
+//!
+ITensorPtr assign(const ITensorPtr& dest, const ITensorPtr& src);
+
+//! \fn ITensorPtr reduceSum(const ITensorPtr& t, int numAxes = -1)
+//! \brief Calculate sum of values along last <numAxes> axes.
+//! \details If numAxes is non-positive calculates along all axes.
+//!
+ITensorPtr reduceSum(const ITensorPtr& t, int numAxes = -1);
+
+//! \fn ITensorPtr reduceMax(const ITensorPtr& t, int numAxes = -1)
+//! \brief Calculates maximum value along last <numAxes> axes.
+//! \details If numAxes is non-positive calculates along all axes.
+//!
+ITensorPtr reduceMax(const ITensorPtr& t, int numAxes = -1);
+
+//! \fn ITensorPtr reduceMean(const ITensorPtr& t, int numAxes = -1)
+//! \brief Calculates mean value along last <numAxes> axes.
+//! \details If numAxes is non-positive calculates along all axes.
+//!
+ITensorPtr reduceMean(const ITensorPtr& t, int numAxes = -1);
+
+//! \fn ITensorPtr reduceMin(const ITensorPtr& t, 
