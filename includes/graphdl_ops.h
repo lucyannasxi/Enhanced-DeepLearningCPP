@@ -80,4 +80,47 @@ ITensorPtr scalar(float value, MemoryLocation location);
 
 //! \fn ITensorPtr matmul(const ITensorPtr& m1, const ITensorPtr& m2)
 //! \brief Matrix multiplication.
-//! Input tensors must be 
+//! Input tensors must be 2-dimensional.
+//! Output tensor is also 2-dimensional.
+//!
+ITensorPtr matmul(const ITensorPtr& m1, const ITensorPtr& m2);
+
+//! \name Pointwise operations
+//!
+///@{
+//!
+
+//! \fn ITensorPtr relu(const ITensorPtr& t)
+//! \brief Applies pointwise relu function.
+//!
+ITensorPtr relu(const ITensorPtr& t);
+
+//! \fn ITensorPtr sigmoid(const ITensorPtr& t)
+//! \brief Applies pointwise sigmoid function.
+//!
+ITensorPtr sigmoid(const ITensorPtr& t);
+
+//! \fn ITensorPtr tanh(const ITensorPtr& t)
+//! \brief Applies pointwise tanh function.
+//!
+ITensorPtr tanh(const ITensorPtr& t);
+
+//! \fn ITensorPtr square(const ITensorPtr& t)
+//! \brief Squares each value in tensor.
+//!
+ITensorPtr square(const ITensorPtr& t);
+
+//! \fn ITensorPtr abs(const ITensorPtr& t)
+//! \brief Applies pointwise abs function.
+//!
+ITensorPtr abs(const ITensorPtr& t);
+
+//! \fn ITensorPtr neg(const ITensorPtr& t)
+//! \brief Negates each value in tensor.
+//!
+ITensorPtr neg(const ITensorPtr& t);
+
+//! \fn ITensorPtr reciprocal(const ITensorPtr& t)
+//! \brief Reverses each number in tensor.
+//!
+ITensorPtr reciprocal(const ITen
