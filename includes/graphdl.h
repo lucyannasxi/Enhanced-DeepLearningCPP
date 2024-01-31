@@ -232,4 +232,8 @@ std::vector<HostTensor> eval(const std::vector<ITensorPtr>& tensors,
 //! \param iTensor Tensor for which gradients will be calculated (i.e. loss).
 //! \return Map from weights name to tensor representing gradient.
 //!
-std::map<ITens
+std::map<ITensorPtr, ITensorPtr> gradients(const ITensorPtr& iTensor);
+
+}  // namespace graphdl
+
+#endif  // GRAPHDL_H_
