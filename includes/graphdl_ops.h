@@ -54,4 +54,30 @@ ITensorPtr operator*(const ITensorPtr& t1, float val);
 ///@}
 
 //! \name Pointwise division.
-//! \de
+//! \details If shapes of tensors don't match it tries to broadcast
+//!     one to another. If one of the inputs is float then it
+//!     considered as constant scalar.
+///@{
+//!
+ITensorPtr div(const ITensorPtr& t1, const ITensorPtr& t2);
+ITensorPtr div(float val, const ITensorPtr& t2);
+ITensorPtr div(const ITensorPtr& t1, float val);
+ITensorPtr operator/(const ITensorPtr& t1, const ITensorPtr& t2);
+ITensorPtr operator/(float val, const ITensorPtr& t2);
+ITensorPtr operator/(const ITensorPtr& t1, float val);
+///@}
+
+//! \fn ITensorPtr constant(float value, const Shape& shape,
+//!                         MemoryLocation location)
+//! \brief Creates constant tensor.
+//!
+ITensorPtr constant(float value, const Shape& shape, MemoryLocation location);
+
+//! \fn ITensorPtr scalar(float value, MemoryLocation location)
+//! \brief Creates constant scalar (tensor of dimension 0).
+//!
+ITensorPtr scalar(float value, MemoryLocation location);
+
+//! \fn ITensorPtr matmul(const ITensorPtr& m1, const ITensorPtr& m2)
+//! \brief Matrix multiplication.
+//! Input tensors must be 
