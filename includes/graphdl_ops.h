@@ -27,4 +27,31 @@ ITensorPtr operator+(const ITensorPtr& t1, float val);
 
 //! \name Pointwise substraction.
 //! \details If shapes of tensors don't match it tries to broadcast
+//!     one to another. If one of the inputs is float then it
+//!     considered as constant scalar.
+///@{
 //!
+ITensorPtr sub(const ITensorPtr& t1, const ITensorPtr& t2);
+ITensorPtr sub(float val, const ITensorPtr& t2);
+ITensorPtr sub(const ITensorPtr& t1, float val);
+ITensorPtr operator-(const ITensorPtr& t1, const ITensorPtr& t2);
+ITensorPtr operator-(float val, const ITensorPtr& t2);
+ITensorPtr operator-(const ITensorPtr& t1, float val);
+///@}
+
+//! \name Pointwise multiplication.
+//! \details If shapes of tensors don't match it tries to broadcast
+//!     one to another. If one of the inputs is float then it
+//!     considered as constant scalar.
+///@{
+//!
+ITensorPtr mul(const ITensorPtr& t1, const ITensorPtr& t2);
+ITensorPtr mul(float val, const ITensorPtr& t2);
+ITensorPtr mul(const ITensorPtr& t1, float val);
+ITensorPtr operator*(const ITensorPtr& t1, const ITensorPtr& t2);
+ITensorPtr operator*(float val, const ITensorPtr& t2);
+ITensorPtr operator*(const ITensorPtr& t1, float val);
+///@}
+
+//! \name Pointwise division.
+//! \de
