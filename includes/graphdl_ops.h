@@ -192,4 +192,29 @@ ITensorPtr reduceMax(const ITensorPtr& t, int numAxes = -1);
 //!
 ITensorPtr reduceMean(const ITensorPtr& t, int numAxes = -1);
 
-//! \fn ITensorPtr reduceMin(const ITensorPtr& t, 
+//! \fn ITensorPtr reduceMin(const ITensorPtr& t, int numAxes = -1)
+//! \brief Calculates minimal value along last <numAxes> axes.
+//! \details If numAxes is non-positive calculates along all axes.
+//!
+ITensorPtr reduceMin(const ITensorPtr& t, int numAxes = -1);
+
+//! \fn ITensorPtr addN(std::vector<ITensorPtr> tensors)
+//! \brief Calculates pointwise addtion of all tensors in vector.
+//! All tensors have to be the same size.
+//!
+ITensorPtr addN(std::vector<ITensorPtr> tensors);
+
+//! \fn ITensorPtr group(const std::vector<ITensorPtr>& tensors)
+//! \brief Groups operations in single meta-operation.
+//! Output of this operation is empty tensor.
+//! It was created for grouping mutliple assing operations.
+//! Doesn't ensure anything about order of execution,
+//!     for this see queue.
+//!
+//! \see queue
+//!
+ITensorPtr group(const std::vector<ITensorPtr>& tensors);
+
+//! \fn ITensorPtr queue(const std::vector<ITensorPtr>& tensors)
+//! \brief Groups operations in single meta-operation.
+//! Same as group, but ensures that operations will be executed in order
