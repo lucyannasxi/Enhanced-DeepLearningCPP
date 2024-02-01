@@ -217,4 +217,28 @@ ITensorPtr group(const std::vector<ITensorPtr>& tensors);
 
 //! \fn ITensorPtr queue(const std::vector<ITensorPtr>& tensors)
 //! \brief Groups operations in single meta-operation.
-//! Same as group, but ensures that operations will be executed in order
+//! Same as group, but ensures that operations will be executed in order.
+//!
+//! \see group
+//!
+ITensorPtr queue(const std::vector<ITensorPtr>& tensors);
+
+//! \fn ITensorPtr reshape(const ITensorPtr& t, const Shape& shape)
+//! \brief Creates new tensor with different shape.
+//! Shape must contain the same number of element as tensor.
+//! Element are moved in row-major order.
+//!
+ITensorPtr reshape(const ITensorPtr& t, const Shape& shape);
+
+//! \fn ITensorPtr maxPool2D(const ITensorPtr& tensor,
+//!                          const std::vector<int>& kernel = {2, 2},
+//!                          const std::vector<int>& strides = {2, 2},
+//!                          const std::string& padding = "VALID",
+//!                          const std::string& format = "NHWC")
+//! \brief Applies max pooling operation.
+//! \param tensor Tensor on which pooling will be performed, must be
+//!               4-dimensional.
+//! \param kernel Kernel shape, should be of length 1 or 2.
+//! \param strides Strides, should be of length 1 or 2.
+//! \param padding Type of padding, should be one of: "SAME", "VALID".
+//! \par
