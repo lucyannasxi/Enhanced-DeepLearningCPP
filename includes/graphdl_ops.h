@@ -279,4 +279,29 @@ ITensorPtr avgPool2D(const ITensorPtr& tensor,
 //!               4-dimensional.
 //! \param strides Strides, should be of length 1 or 2.
 //! \param padding Type of padding, should be one of: "SAME", "VALID".
-//! \param format Type
+//! \param format Type of data format, should be one of : "NHWC", "NCHW".
+//!
+ITensorPtr conv2D(const ITensorPtr& tensor, const ITensorPtr& kernel,
+                  const std::vector<int>& strides = {1, 1},
+                  const std::string& padding = "SAME",
+                  const std::string& format = "NHWC");
+
+//! \fn ITensorPtr nhwc2nchw(const ITensorPtr& tensor)
+//! \brief Reformats tensor from NHWC to NCHW format.
+//!
+ITensorPtr nhwc2nchw(const ITensorPtr& tensor);
+
+//! \fn ITensorPtr nchw2nhwc(const ITensorPtr& tensor)
+//! \brief Reformats tensor from NCHW to NHWC format.
+//!
+ITensorPtr nchw2nhwc(const ITensorPtr& tensor);
+
+//! \fn ITensorPtr softmax(const ITensorPtr& tensor, int numAxes = -1)
+//! \brief Applies softmax operation on last numAxes axes.
+//! \param tensor Tensor on which softmax will be performed.
+//! \param numAxes Number of axes, if non-positive then it is set
+//!                to number of dimenstions of tensor.
+//!
+ITensorPtr softmax(const ITensorPtr& tensor, int numAxes = -1);
+
+//! \fn ITensorPtr softmax(const ITensorPtr& 
