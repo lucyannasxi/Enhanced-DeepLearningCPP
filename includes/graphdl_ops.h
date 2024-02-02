@@ -241,4 +241,23 @@ ITensorPtr reshape(const ITensorPtr& t, const Shape& shape);
 //! \param kernel Kernel shape, should be of length 1 or 2.
 //! \param strides Strides, should be of length 1 or 2.
 //! \param padding Type of padding, should be one of: "SAME", "VALID".
-//! \par
+//! \param format Type of data format, should be one of : "NHWC", "NCHW".
+//!
+ITensorPtr maxPool2D(const ITensorPtr& tensor,
+                     const std::vector<int>& kernel = {2, 2},
+                     const std::vector<int>& strides = {2, 2},
+                     const std::string& padding = "VALID",
+                     const std::string& format = "NHWC");
+
+//! \fn ITensorPtr avgPool2D(const ITensorPtr& tensor,
+//!                          const std::vector<int>& kernel = {2, 2},
+//!                          const std::vector<int>& strides = {2, 2},
+//!                          const std::string& padding = "VALID",
+//!                          const std::string& format = "NHWC")
+//! \brief Applies average pooling operation.
+//! \param tensor Tensor on which pooling will be performed, must be
+//!               4-dimensional.
+//! \param kernel Kernel shape, should be of length 1 or 2.
+//! \param strides Strides, should be of length 1 or 2.
+//! \param padding Type of padding, should be one of: "SAME", "VALID".
+//! \param format Type
