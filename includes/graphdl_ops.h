@@ -260,4 +260,23 @@ ITensorPtr maxPool2D(const ITensorPtr& tensor,
 //! \param kernel Kernel shape, should be of length 1 or 2.
 //! \param strides Strides, should be of length 1 or 2.
 //! \param padding Type of padding, should be one of: "SAME", "VALID".
+//! \param format Type of data format, should be one of : "NHWC", "NCHW".
+//!
+ITensorPtr avgPool2D(const ITensorPtr& tensor,
+                     const std::vector<int>& kernel = {2, 2},
+                     const std::vector<int>& strides = {2, 2},
+                     const std::string& padding = "VALID",
+                     const std::string& format = "NHWC");
+
+//! \fn ITensorPtr conv2D(const ITensorPtr& tensor, const ITensorPtr& kernel,
+//!                       const std::vector<int>& strides = {1, 1},
+//!                       const std::string& padding = "SAME",
+//!                       const std::string& format = "NHWC")
+//! \brief Applies 2D convolution operation.
+//! \param tensor Tensor on which convolution will be performed, must be
+//!               4-dimensional.
+//! \param kernel Tensor with convolution kernel, must be
+//!               4-dimensional.
+//! \param strides Strides, should be of length 1 or 2.
+//! \param padding Type of padding, should be one of: "SAME", "VALID".
 //! \param format Type
