@@ -304,4 +304,22 @@ ITensorPtr nchw2nhwc(const ITensorPtr& tensor);
 //!
 ITensorPtr softmax(const ITensorPtr& tensor, int numAxes = -1);
 
-//! \fn ITensorPtr softmax(const ITensorPtr& 
+//! \fn ITensorPtr softmax(const ITensorPtr& tensor, int numAxes = -1)
+//! \brief Applies centered softmax operation on last numAxes axes.
+//! \param tensor Tensor on which softmax will be performed.
+//! \param numAxes Number of axes, if non-positive then it is set
+//!                to number of dimenstions of tensor.
+//! \details Before appling softmax it substracts maximal value
+//!          in each reduction block. It helps numerical stability.
+//!
+ITensorPtr softmax_c(const ITensorPtr& tensor, int numAxes = -1);
+
+//! \fn ITensorPtr batchNorm(const ITensorPtr& tensor, const ITensorPtr& alpha,
+//!                          const ITensorPtr& beta, int numAxes = -1)
+//! \brief Applies batch normalization.
+//! \param tensor Tensor on which normalization will be performed.
+//! \param alpha Tensor with alpha weights for normalization.
+//! \param beta Tensor with beta weights for normalization.
+//! \param numAxes Number of axes (counting from begging) normalization
+//!                will be applied.
+//! \details If tensor has N dimensions, then alpha and beta should 
