@@ -342,4 +342,20 @@ ITensorPtr batchNorm(const ITensorPtr& tensor, const ITensorPtr& alpha,
 //!          single 1 in one-hot encoded labels.
 //!
 ITensorPtr softmax_cross_entropy_with_logits(const ITensorPtr& logits,
-                                             const ITensorPtr&
+                                             const ITensorPtr& labels);
+
+//! \fn ITensorPtr sigmoid_cross_entropy_with_logits(const ITensorPtr& logits,
+//!                                                  const ITensorPtr& labels);
+//! \brief Computes sigmoid cross entropy from logits.
+//! \param logits Tensor with logits, must be 2-dimensional.
+//! \param labels Multilabel one-hot encoded labels,
+//!                 must be 2-dimensional.
+//! \return Tensor with the same dimension, with elementwise
+//!             sigmoid cross entropy.
+//!
+ITensorPtr sigmoid_cross_entropy_with_logits(const ITensorPtr& logits,
+                                             const ITensorPtr& labels);
+
+}  // namespace graphdl
+
+#endif  // GRAPHDL_OPS_H_
