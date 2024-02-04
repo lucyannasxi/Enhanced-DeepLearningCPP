@@ -322,4 +322,24 @@ ITensorPtr softmax_c(const ITensorPtr& tensor, int numAxes = -1);
 //! \param beta Tensor with beta weights for normalization.
 //! \param numAxes Number of axes (counting from begging) normalization
 //!                will be applied.
-//! \details If tensor has N dimensions, then alpha and beta should 
+//! \details If tensor has N dimensions, then alpha and beta should have the
+//!          shape as last <N - numAxes> of axes of tensor.
+//!          If numAxes is non-positive then normalization if done over all
+//!          axes.
+//!
+ITensorPtr batchNorm(const ITensorPtr& tensor, const ITensorPtr& alpha,
+                     const ITensorPtr& beta, int numAxes = -1);
+
+//! \fn ITensorPtr softmax_cross_entropy_with_logits(const ITensorPtr& logits,
+//!                                                  const ITensorPtr& labels)
+//! \brief Computes softmax cross entropy from logits.
+//! \param logits Tensor with logits, must be 2-dimensional.
+//! \param labels One-hot encoded labels, must be 2-dimensional.
+//! \returns Per example softmax cross entropy loss.
+//! \details First dimentsion in both tensors represents batch,
+//!          the second per example logits and labels.
+//!          For this to work properly, there must be exactly
+//!          single 1 in one-hot encoded labels.
+//!
+ITensorPtr softmax_cross_entropy_with_logits(const ITensorPtr& logits,
+                                             const ITensorPtr&
