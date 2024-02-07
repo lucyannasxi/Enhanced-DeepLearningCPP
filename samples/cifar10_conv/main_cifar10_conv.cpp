@@ -61,4 +61,37 @@ ComputationalGraph buildNetwork()
     a = maxPool2D(a, {2, 2}, {2, 2}, "VALID", "NHWC");
     a = relu(a);
 
-    a
+    a = create_conv2D(a, 64, {3, 3}, {1, 1}, "SAME", "NHWC", "conv4");
+
+    a = reshape(a, {BATCH_SIZE, 64 * 4 * 4});
+    a = create_matmulAndAddBias(a, 128, "dense1");
+    a = relu(a);
+    ITensorPtr logits = create_matmulAndAddBias(a, 10, "dense2");
+    ITensorPtr prob = softmax_c(logits, 1);
+
+    ITensorPtr loss = reduceMean(softmax_cross_entropy_with_logits(logits, Y));
+
+    ITensorPtr opt =
+        train::adam(LEARNING_RATE, 0.9, 0.999, 10e-8)->optimize(loss);
+
+    ComputationalGraph net;
+    net.inputs = {{"X", X}, {"Y", Y}};
+    net.weights = {};
+    net.output = prob;
+    net.loss = loss;
+    net.optimize = opt;
+    return net;
+}
+
+int main()
+{
+    std::cout << "Reading CIFAR10 dataset..." << std::endl;
+    Cifar10Dataset train_cifar10(TRAIN_PATHS, BATCH_SIZE);
+    Cifar10Dataset valid_cifar10(VALID_PATHS, BATCH_SIZE);
+    std::cout << "Building network..." << std::endl;
+    ComputationalGraph net = buildNetwork();
+    initializeGraph();
+
+    std::vector<float> losses;
+    std::vector<int> accs;
+    std
