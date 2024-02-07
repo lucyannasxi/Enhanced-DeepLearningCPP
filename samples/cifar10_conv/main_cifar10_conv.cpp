@@ -94,4 +94,27 @@ int main()
 
     std::vector<float> losses;
     std::vector<int> accs;
-    std
+    std::cout << "Number of epochs: " << NUM_EPOCHS << std::endl;
+    for (int e = 0; e < NUM_EPOCHS; ++e)
+    {
+        losses.clear();
+        accs.clear();
+        std::cout << "Epoch " << e << std::endl;
+        std::cout << "Number of batches " << train_cifar10.getNumBatches()
+                  << std::endl;
+        for (int i = 0; i < train_cifar10.getNumBatches(); ++i)
+        {
+            auto batch = train_cifar10.getNextBatch();
+            auto outputs = eval({net.loss, net.output, net.optimize},
+                                {{"X", batch[0]}, {"Y", batch[1]}});
+            losses.push_back(outputs[0][0]);
+            accs.push_back(calcNumCorrect(batch[1], outputs[1], BATCH_SIZE));
+            if (i % PRINT_EVERY == PRINT_EVERY - 1)
+            {
+                std::cout << "Step " << i << ": "
+                          << "loss " << mean(losses) << ", acc "
+                          << accuracy(accs, BATCH_SIZE) << std::endl;
+
+                losses.clear();
+                accs.clear();
+           
