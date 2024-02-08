@@ -117,4 +117,24 @@ int main()
 
                 losses.clear();
                 accs.clear();
-           
+            }
+        }
+
+        losses.clear();
+        accs.clear();
+        for (int i = 0; i < valid_cifar10.getNumBatches(); ++i)
+        {
+            auto batch = valid_cifar10.getNextBatch();
+            auto outputs = eval({net.loss, net.output},
+                                {{"X", batch[0]}, {"Y", batch[1]}});
+            losses.push_back(outputs[0][0]);
+            accs.push_back(calcNumCorrect(batch[1], outputs[1], BATCH_SIZE));
+        }
+        std::cout << "Valid. loss " << mean(losses) << ", Valid. acc "
+                  << accuracy(accs, BATCH_SIZE) << std::endl;
+        train_cifar10.reset();
+        valid_cifar10.reset();
+    }
+
+    return 0;
+};
