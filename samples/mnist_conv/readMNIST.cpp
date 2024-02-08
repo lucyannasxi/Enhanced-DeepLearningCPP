@@ -76,4 +76,41 @@ void parseLabels(const std::string& path, std::vector<std::vector<float>>& db)
         unsigned char temp;
         for (unsigned n = 0; n < N; ++n)
         {
-            db.emplace_back(
+            db.emplace_back();
+            file.read(reinterpret_cast<char*>(&temp), sizeof(temp));
+            for (unsigned i = 0; i < 10; ++i)
+            {
+                float v = (i == unsigned(temp)) ? 1. : 0.;
+                db.back().push_back(v);
+            }
+        }
+    }
+}
+
+MnistDataset::MnistDataset(const std::string& imagesPath,
+                           const std::string& labelsPath, int batchSize)
+    : mBatchSize(batchSize), mPos(0)
+{
+    assert(fileExists(imagesPath));
+    assert(fileExists(labelsPath));
+
+    parseImages(imagesPath, mX);
+    parseLabels(labelsPath, mY);
+    mIndexes = std::vector<int>(mX.size());
+    std::iota(mIndexes.begin(), mIndexes.end(), 0);
+    std::shuffle(mIndexes.begin(), mIndexes.end(),
+                 std::mt19937(std::random_device()()));
+}
+
+int MnistDataset::getNumBatches() const
+{
+    return mX.size() / mBatchSize;
+}
+
+std::vector<std::vector<float>> MnistDataset::getNextBatch()
+{
+    std::vector<float> batchX, batchY;
+    for (int n = 0; n < mBatchSize; ++n)
+    {
+        int i = mIndexes[mPos + n];
+        for (float f : m
