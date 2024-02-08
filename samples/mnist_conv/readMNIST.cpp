@@ -41,3 +41,39 @@ void parseImages(const std::string& path, std::vector<std::vector<float>>& db)
         mn = rev(mn);
         file.read(reinterpret_cast<char*>(&N), sizeof(N));
         N = rev(N);
+        file.read(reinterpret_cast<char*>(&R), sizeof(R));
+        R = rev(R);
+        file.read(reinterpret_cast<char*>(&C), sizeof(C));
+        C = rev(C);
+
+        unsigned char temp;
+        for (unsigned n = 0; n < N; ++n)
+        {
+            db.emplace_back();
+            for (unsigned r = 0; r < R; ++r)
+            {
+                for (unsigned c = 0; c < C; ++c)
+                {
+                    file.read(reinterpret_cast<char*>(&temp), sizeof(temp));
+                    db.back().push_back(float(temp) / 127. - 1.);
+                }
+            }
+        }
+    }
+}
+
+void parseLabels(const std::string& path, std::vector<std::vector<float>>& db)
+{
+    std::ifstream file(path);
+    if (file.is_open())
+    {
+        unsigned mn, N;
+        file.read(reinterpret_cast<char*>(&mn), sizeof(mn));
+        mn = rev(mn);
+        file.read(reinterpret_cast<char*>(&N), sizeof(N));
+        N = rev(N);
+
+        unsigned char temp;
+        for (unsigned n = 0; n < N; ++n)
+        {
+            db.emplace_back(
