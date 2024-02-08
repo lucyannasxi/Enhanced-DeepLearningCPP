@@ -56,4 +56,32 @@ Cifar10Dataset::Cifar10Dataset(const std::vector<std::string>& paths,
     for (const auto& path : paths) parse(path, mX, mY);
     mIndexes = std::vector<int>(mX.size());
     std::iota(mIndexes.begin(), mIndexes.end(), 0);
-    std::shuffle(mIndexes.begin(), 
+    std::shuffle(mIndexes.begin(), mIndexes.end(),
+                 std::mt19937(std::random_device()()));
+}
+
+int Cifar10Dataset::getNumBatches() const
+{
+    return mX.size() / mBatchSize;
+}
+
+std::vector<std::vector<float>> Cifar10Dataset::getNextBatch()
+{
+    std::vector<float> batchX, batchY;
+    for (int n = 0; n < mBatchSize; ++n)
+    {
+        int i = mIndexes[mPos + n];
+        for (float f : mX[i]) batchX.push_back(f);
+        for (float f : mY[i]) batchY.push_back(f);
+    }
+
+    mPos += mBatchSize;
+    return {batchX, batchY};
+}
+
+void Cifar10Dataset::reset()
+{
+    mPos = 0;
+    std::shuffle(mIndexes.begin(), mIndexes.end(),
+                 std::mt19937(std::random_device()()));
+}
