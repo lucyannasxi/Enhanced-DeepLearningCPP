@@ -62,4 +62,39 @@ class BatchNormTest : public LayerTest,
         LayerBuilder builder = getBuilder(testCase);
         bool correct =
             runTest({mInput, mAlpha, mBeta}, {mOutput}, builder, 10e-4);
-        EX
+        EXPECT_TRUE(correct);
+    }
+
+    void testGradient(const TestCase& testCase)
+    {
+        setupGradient(testCase);
+        LayerBuilder builder = getGradientBuilder(testCase);
+        bool correct =
+            runTest({mInput, mAlpha, mBeta, mOutputGrad},
+                    {mInputGrad, mAlphaGrad, mBetaGrad}, builder, 10e-4);
+        EXPECT_TRUE(correct);
+    }
+
+  private:
+    void setup(const TestCase& testCase)
+    {
+        UniformGen gen(seed);
+        mInput = RefTensor(shape(testCase), gen);
+        mAlpha = RefTensor(paramShape(testCase), gen);
+        mBeta = RefTensor(paramShape(testCase), gen);
+        mOutput = RefTensor(shape(testCase));
+
+        RefTensor mean(paramShape(testCase));
+        RefTensor stddev(paramShape(testCase));
+
+        calculateForward(testCase, mean, stddev);
+    }
+
+    void calculateForward(const TestCase& testCase, RefTensor& mean,
+                          RefTensor& stddev)
+    {
+        UVec s = shape(testCase);
+        int axes = numAxes(testCase);
+
+        int cS = axes;
+        int cE 
