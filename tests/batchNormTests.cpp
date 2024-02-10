@@ -125,4 +125,34 @@ class BatchNormTest : public LayerTest,
         }
     }
 
-    void setupGradient(const TestCase& testCase
+    void setupGradient(const TestCase& testCase)
+    {
+        UniformGen gen(seed);
+        mInput = RefTensor(shape(testCase), gen);
+        mAlpha = RefTensor(paramShape(testCase), gen);
+        mBeta = RefTensor(paramShape(testCase), gen);
+        mOutputGrad = RefTensor(shape(testCase), gen);
+        mOutput = RefTensor(shape(testCase));
+        mInputGrad = RefTensor(shape(testCase));
+        mAlphaGrad = RefTensor(paramShape(testCase));
+        mBetaGrad = RefTensor(paramShape(testCase));
+
+        RefTensor mean(paramShape(testCase));
+        RefTensor stddev(paramShape(testCase));
+
+        calculateForward(testCase, mean, stddev);
+
+        UVec s = shape(testCase);
+        int axes = numAxes(testCase);
+
+        int cS = axes;
+        int cE = s.size();
+
+        int batchSize = 1;
+        for (int i = 0; i < axes; ++i) batchSize *= s[i];
+
+        Coord_iterator sBegin = shapeBegin(shape(testCase));
+        Coord_iterator sEnd = shapeEnd(shape(testCase));
+
+        for (Coord_iterator it = sBegin; it != sEnd; ++it)
+            mBetaGrad[it().cast(cS, c
