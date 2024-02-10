@@ -113,4 +113,17 @@ std::vector<std::vector<float>> MnistDataset::getNextBatch()
     for (int n = 0; n < mBatchSize; ++n)
     {
         int i = mIndexes[mPos + n];
-        for (float f : m
+        for (float f : mX[i]) batchX.push_back(f);
+        for (float f : mY[i]) batchY.push_back(f);
+    }
+
+    mPos += mBatchSize;
+    return {batchX, batchY};
+}
+
+void MnistDataset::reset()
+{
+    mPos = 0;
+    std::shuffle(mIndexes.begin(), mIndexes.end(),
+                 std::mt19937(std::random_device()()));
+}
