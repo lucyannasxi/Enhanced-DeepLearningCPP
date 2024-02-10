@@ -59,4 +59,40 @@ class AssignTest : public LayerTest,
         };
         bool correct = runTest({tensor}, {tensor}, builder);
         EXPECT_TRUE(correct);
-  
+    }
+};
+
+class AssignErrorTest : public LayerTest,
+                        public testing::WithParamInterface<ErrorTestCase>
+{
+  public:
+    void test(const ErrorTestCase& testCase)
+    {
+        ITensorPtr in =
+            createInput("in", std::get<0>(testCase), MemoryLocation::kHOST);
+        ITensorPtr w =
+            createInput("w", std::get<1>(testCase), MemoryLocation::kHOST);
+        ITensorPtr a;
+        EXPECT_THROW({ a = assign(w, in); }, std::runtime_error);
+    }
+};
+
+TEST_P(AssignTest, testAPI)
+{
+    test(GetParam());
+}
+INSTANTIATE_TESTS(
+    LayerTest, AssignTest,
+    Combine(ValuesIn(SHAPES), ValuesIn(LOCATIONS))
+);
+
+TEST_P(AssignErrorTest, test)
+{
+    test(GetParam());
+}
+INSTANTIATE_TESTS(
+    LayerErrorTest, AssignErrorTest,
+    ValuesIn(ERROR_SHAPES)
+);
+
+}  // namespace
