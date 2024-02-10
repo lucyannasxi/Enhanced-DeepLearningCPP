@@ -155,4 +155,27 @@ class BatchNormTest : public LayerTest,
         Coord_iterator sEnd = shapeEnd(shape(testCase));
 
         for (Coord_iterator it = sBegin; it != sEnd; ++it)
-            mBetaGrad[it().cast(cS, c
+            mBetaGrad[it().cast(cS, cE)] += mOutputGrad[it()];
+        for (Coord_iterator it = sBegin; it != sEnd; ++it)
+        {
+            Coord c = it().cast(cS, cE);
+            mAlphaGrad[c] += mOutputGrad[it()] * (mInput[it()] - mean[c]) /
+                             std::sqrt(stddev[c] + EPS);
+        }
+        for (Coord_iterator it_x = sBegin; it_x != sEnd; ++it_x)
+        {
+            for (Coord_iterator it_y = sBegin; it_y != sEnd; ++it_y)
+            {
+                if (it_x().cast(cS, cE) == it_y().cast(cS, cE))
+                {
+                    Coord c = it_x().cast(cS, cE);
+                    float grad;
+                    if (it_x() == it_y())
+                    {
+                        grad = (1. - 1. / float(batchSize)) *
+                               std::sqrt(stddev[c] + EPS);
+                        grad -= 0.5 * (mInput[it_y()] - mean[c]) *
+                                (mInput[it_y()] - mean[c]) /
+                                std::sqrt(stddev[c] + EPS);
+                        grad /= stddev[c] + EPS;
+                 
