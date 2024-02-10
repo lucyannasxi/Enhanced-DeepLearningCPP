@@ -178,4 +178,29 @@ class BatchNormTest : public LayerTest,
                                 (mInput[it_y()] - mean[c]) /
                                 std::sqrt(stddev[c] + EPS);
                         grad /= stddev[c] + EPS;
-                 
+                        grad *= mAlpha[c];
+                    }
+                    else
+                    {
+                        grad = (-1. / float(batchSize)) *
+                               std::sqrt(stddev[c] + EPS);
+                        grad -= 0.5 * (mInput[it_x()] - mean[c]) *
+                                (mInput[it_y()] - mean[c]) /
+                                std::sqrt(stddev[c] + EPS);
+                        grad /= stddev[c] + EPS;
+                        grad *= mAlpha[c];
+                    }
+                    mInputGrad[it_x()] += mOutputGrad[it_y()] * grad;
+                }
+            }
+        }
+    }
+
+    LayerBuilder getBuilder(const TestCase& testCase)
+    {
+        return [&testCase](const HostVec& ins) {
+            ITensorPtr in = createInput("in", shape(testCase), loc(testCase));
+            ITensorPtr alpha =
+                createInput("alpha", paramShape(testCase), loc(testCase));
+            ITensorPtr beta =
+                createInput("beta", paramShape(testCase),
