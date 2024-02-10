@@ -97,4 +97,32 @@ class BatchNormTest : public LayerTest,
         int axes = numAxes(testCase);
 
         int cS = axes;
-        int cE 
+        int cE = s.size();
+
+        int batchSize = 1;
+        for (int i = 0; i < axes; ++i) batchSize *= s[i];
+
+        Coord_iterator sBegin = shapeBegin(shape(testCase));
+        Coord_iterator sEnd = shapeEnd(shape(testCase));
+
+        for (Coord_iterator it = sBegin; it != sEnd; ++it)
+            mean[it().cast(cS, cE)] += mInput[it()];
+        for (int i = 0; i < mean.getCount(); ++i)
+            mean.at(i) /= float(batchSize);
+        for (Coord_iterator it = sBegin; it != sEnd; ++it)
+        {
+            Coord c = it().cast(cS, cE);
+            stddev[c] += (mInput[it()] - mean[c]) * (mInput[it()] - mean[c]);
+        }
+        for (int i = 0; i < stddev.getCount(); ++i)
+            stddev.at(i) /= float(batchSize);
+        for (Coord_iterator it = sBegin; it != sEnd; ++it)
+        {
+            Coord c = it().cast(cS, cE);
+            mOutput[it()] = mAlpha[c] * (mInput[it()] - mean[c]) /
+                                std::sqrt(stddev[c] + EPS) +
+                            mBeta[c];
+        }
+    }
+
+    void setupGradient(const TestCase& testCase
