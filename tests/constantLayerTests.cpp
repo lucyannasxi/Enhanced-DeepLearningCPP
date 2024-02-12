@@ -35,4 +35,23 @@ class ConstantTest : public LayerTest,
         LayerBuilder builder = [&testCase](const HostVec& ins) {
             ITensorPtr c =
                 constant(std::get<1>(testCase), std::get<0>(testCase),
-                         std::get<2>(tes
+                         std::get<2>(testCase));
+            initializeGraph();
+
+            return HostVec({c->eval({})});
+        };
+        bool correct = runTest({}, {tensor}, builder);
+        EXPECT_TRUE(correct);
+    }
+};
+
+TEST_P(ConstantTest, testAPI)
+{
+    test(GetParam());
+}
+INSTANTIATE_TESTS(
+    LayerTest, ConstantTest,
+    Combine(ValuesIn(SHAPES), ValuesIn({3.14f}), ValuesIn(LOCATIONS))
+);
+
+}  // namespace
