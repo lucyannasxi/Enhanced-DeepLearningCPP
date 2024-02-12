@@ -203,4 +203,29 @@ class BatchNormTest : public LayerTest,
             ITensorPtr alpha =
                 createInput("alpha", paramShape(testCase), loc(testCase));
             ITensorPtr beta =
-                createInput("beta", paramShape(testCase),
+                createInput("beta", paramShape(testCase), loc(testCase));
+            ITensorPtr out = batchNorm(in, alpha, beta, numAxes(testCase));
+            initializeGraph();
+            return HostVec({out->eval(
+                {{"in", ins[0]}, {"alpha", ins[1]}, {"beta", ins[2]}})});
+        };
+    }
+
+    LayerBuilder getGradientBuilder(const TestCase& testCase)
+    {
+        return [&testCase](const HostVec& ins) {
+            MemoryType type = memoryLocationToType(loc(testCase));
+            Graph::SPtr graph = core::getDefaultGraph();
+            Tensor::SPtr in = graph->addInput(
+                "in", createLayer<InputLayer>("in", shape(testCase), type));
+            Tensor::SPtr alpha = graph->addInput(
+                "alpha",
+                createLayer<InputLayer>("alpha", paramShape(testCase), type));
+            Tensor::SPtr beta = graph->addInput(
+                "beta",
+                createLayer<InputLayer>("beta", paramShape(testCase), type));
+            Tensor::SPtr outG = graph->addInput(
+                "outG", createLayer<InputLayer>("outG", shape(testCase), type));
+
+            Layer::SPtr layer = createLayer<layers::BatchNormLayer>(
+                
