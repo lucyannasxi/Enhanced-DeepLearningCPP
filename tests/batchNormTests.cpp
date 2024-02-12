@@ -228,4 +228,37 @@ class BatchNormTest : public LayerTest,
                 "outG", createLayer<InputLayer>("outG", shape(testCase), type));
 
             Layer::SPtr layer = createLayer<layers::BatchNormLayer>(
-                
+                in, alpha, beta, numAxes(testCase));
+            Layer::TensorMap grads =
+                layer->gradients(layer->getOutputs()[0], outG);
+
+            std::vector<ITensorPtr> igrads = {makeAbstractTensor(grads[in]),
+                                              makeAbstractTensor(grads[alpha]),
+                                              makeAbstractTensor(grads[beta])};
+            initializeGraph();
+            return eval(igrads, {{"in", ins[0]},
+                                 {"alpha", ins[1]},
+                                 {"beta", ins[2]},
+                                 {"outG", ins[3]}});
+        };
+    }
+
+    RefTensor mInput, mAlpha, mBeta, mOutput, mInputGrad, mAlphaGrad, mBetaGrad,
+        mOutputGrad;
+};
+
+TEST_P(BatchNormTest, testAPI)
+{
+    test(GetParam());
+}
+INSTANTIATE_TEST_CASE_P(LayerTest, BatchNormTest,
+                        Combine(ValuesIn(SHAPES), ValuesIn(LOCATIONS)));
+
+class BatchNormGradientTest : public BatchNormTest
+{
+};
+TEST_P(BatchNormGradientTest, testAPI)
+{
+    testGradient(GetParam());
+}
+INSTANTIATE_T
