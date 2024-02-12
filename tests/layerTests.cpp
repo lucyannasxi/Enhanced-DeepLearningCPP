@@ -24,4 +24,35 @@ std::ostream& operator<<(std::ostream& os, MemoryLocation loc)
 bool compareTensor(const RefTensor& refOutput, const HostTensor& output,
                    float eps, int tensorNum)
 {
-    EXPECT
+    EXPECT_EQ(refOutput.getCount(), output.size())
+        << refOutput.getCount() << " and " << output.size();
+
+    for (size_t i = 0; i < output.size(); ++i)
+    {
+        Coord c = refOutput.coordAt(i);
+        std::string s = "[";
+        for (int i = 0; i < int(c.size()) - 1; ++i)
+            s += std::to_string(c[i]) + ", ";
+        if (c.size() > 0) s += std::to_string(c[c.size() - 1]) + "]";
+        EXPECT_NEAR(refOutput.at(i), output[i], eps)
+            << "tensor = " << tensorNum << ", coord = " << s;
+    }
+
+    return true;
+}
+
+bool compareTensors(const std::vector<RefTensor>& refOutputs,
+                    const std::vector<HostTensor>& outputs, float eps)
+{
+    EXPECT_EQ(refOutputs.size(), outputs.size());
+
+    bool acc = true;
+    for (std::size_t i = 0; i < refOutputs.size(); ++i)
+        acc &= compareTensor(refOutputs[i], outputs[i], eps, i);
+
+    return acc;
+}
+
+bool LayerTest::runTest(const std::vector<RefTensor>& refInputs,
+                        const std::vector<RefTensor>& refOutputs,
+                        L
