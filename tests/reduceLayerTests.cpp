@@ -147,3 +147,36 @@ class ReduceBackTest : public LayerTest,
         int axes = numAxes(testCase);
         UVec outShape;
         for (unsigned i = 0; i < shape.size() - axes; ++i)
+            outShape.push_back(shape[i]);
+
+        return outShape;
+    }
+
+    void setup(const TestCase& testCase)
+    {
+        auto fun = getReduceOp(std::get<1>(testCase));
+        float initalValue = getInitialValue(std::get<1>(testCase));
+
+        UniformGen gen(seed);
+        UVec shape = inputShape(testCase);
+        int axes = numAxes(testCase);
+        size_t outSize = 1;
+        for (unsigned i = 0; i < shape.size() - axes; ++i) outSize *= shape[i];
+        size_t reduceSize = 1;
+        for (unsigned i = shape.size() - axes; i < shape.size(); ++i)
+            reduceSize *= shape[i];
+
+        input = RefTensor(shape, gen);
+        output = RefTensor(outputShape(testCase));
+        for (size_t posY = 0; posY < outSize; ++posY)
+        {
+            float acc = initalValue;
+            for (size_t posX = 0; posX < reduceSize; ++posX)
+            {
+                float x = input.at(posY * reduceSize + posX);
+                acc = fun(acc, x);
+            }
+            output.at(posY) = acc;
+        }
+    }
+
