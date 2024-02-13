@@ -372,3 +372,41 @@ class Pooling2DErrorsTest : public LayerTest,
             EXPECT_THROW({ out = avgPool2D(in, k, s, p, f); },
                          std::runtime_error);
     }
+};
+
+TEST_P(Pooling2DTest, testAPI)
+{
+    test(GetParam());
+}
+INSTANTIATE_TESTS(
+    LayerTest, Pooling2DTest,
+    Combine(ValuesIn(N), ValuesIn(C), ValuesIn(SHAPES),
+            ValuesIn(POOLINGS), ValuesIn(PADDINGS),
+            ValuesIn(DATA_FORMATS), ValuesIn(LOCATIONS))
+);
+
+class Pooling2DGradientTest : public Pooling2DTest
+{
+};
+TEST_P(Pooling2DGradientTest, testAPI)
+{
+    testGradient(GetParam());
+}
+INSTANTIATE_TESTS(
+    LayerTest, Pooling2DGradientTest,
+    Combine(ValuesIn(N), ValuesIn(C), ValuesIn(SHAPES),
+            ValuesIn(POOLINGS), ValuesIn(PADDINGS),
+            ValuesIn(DATA_FORMATS), ValuesIn(LOCATIONS))
+);
+
+TEST_P(Pooling2DErrorsTest, testWrongShapes)
+{
+    testWrongShapes(GetParam());
+};
+INSTANTIATE_TESTS(
+    LayerTest, Pooling2DErrorsTest,
+    Combine(ValuesIn(ERROR_SHAPES), ValuesIn(POOLINGS),
+            ValuesIn(PADDINGS), ValuesIn(DATA_FORMATS),
+            ValuesIn(LOCATIONS))
+);
+}  // namespace
