@@ -111,4 +111,39 @@ std::function<float(float, float)> getReduceOpGrad(ReduceType reduceType)
     {
     case ReduceType::kSUM: return [](float x, float y) { return 1.; };
     case ReduceType::kMAX:
-        return [](float x, float y) { return x == y ? 1. : 0.
+        return [](float x, float y) { return x == y ? 1. : 0.; };
+    case ReduceType::kMIN:
+        return [](float x, float y) { return x == y ? 1. : 0.; };
+    default: return [](float x, float y) { return 0.; };
+    }
+}
+
+class ReduceBackTest : public LayerTest,
+                       public testing::WithParamInterface<TestCase>
+{
+  public:
+    void test(const TestCase& testCase)
+    {
+        setup(testCase);
+        LayerBuilder builder = getBuilder(testCase);
+        bool correct = runTest({input}, {output}, builder, 10e-2);
+        EXPECT_TRUE(correct);
+    }
+
+    void testGradient(const TestCase& testCase)
+    {
+        setupGradient(testCase);
+        LayerBuilder builder = getGradientBuilder(testCase);
+        bool correct = runTest({input, outputGrad}, {inputGrad}, builder);
+        EXPECT_TRUE(correct);
+    }
+
+  private:
+    RefTensor input, output, inputGrad, outputGrad;
+
+    UVec outputShape(const TestCase& testCase)
+    {
+        UVec shape = inputShape(testCase);
+        int axes = numAxes(testCase);
+        UVec outShape;
+        for (unsigned i = 0; i < shape.size() - axes; ++i)
