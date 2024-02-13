@@ -77,4 +77,38 @@ ReduceType reduceType(const TestCase& testCase)
     return std::get<1>(testCase);
 }
 
-Memory
+MemoryLocation loc(const TestCase& testCase)
+{
+    return std::get<2>(testCase);
+}
+std::function<float(float, float)> getReduceOp(ReduceType reduceType)
+{
+    switch (reduceType)
+    {
+    case ReduceType::kSUM: return [](float acc, float x) { return acc + x; };
+    case ReduceType::kMAX:
+        return [](float acc, float x) { return acc > x ? acc : x; };
+    case ReduceType::kMIN:
+        return [](float acc, float x) { return acc < x ? acc : x; };
+    default: return [](float acc, float x) { return 0.; };
+    }
+}
+
+float getInitialValue(ReduceType reduceType)
+{
+    switch (reduceType)
+    {
+    case ReduceType::kSUM: return 0;
+    case ReduceType::kMAX: return -FLT_MAX;
+    case ReduceType::kMIN: return FLT_MAX;
+    default: return 0.;
+    }
+}
+
+std::function<float(float, float)> getReduceOpGrad(ReduceType reduceType)
+{
+    switch (reduceType)
+    {
+    case ReduceType::kSUM: return [](float x, float y) { return 1.; };
+    case ReduceType::kMAX:
+        return [](float x, float y) { return x == y ? 1. : 0.
