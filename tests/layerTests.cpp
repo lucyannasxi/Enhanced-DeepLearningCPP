@@ -55,4 +55,16 @@ bool compareTensors(const std::vector<RefTensor>& refOutputs,
 
 bool LayerTest::runTest(const std::vector<RefTensor>& refInputs,
                         const std::vector<RefTensor>& refOutputs,
-                        L
+                        LayerBuilder builder, float eps)
+{
+    // prepare inputs
+    std::vector<HostTensor> inputs;
+    for (RefTensor ref : refInputs) inputs.push_back(ref.toHostTensor());
+
+    // run graph
+    std::vector<HostTensor> outputs = builder(inputs);
+
+    bool ret = compareTensors(refOutputs, outputs, eps);
+
+    return ret;
+}
