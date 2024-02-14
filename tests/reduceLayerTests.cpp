@@ -206,4 +206,34 @@ class ReduceBackTest : public LayerTest,
             for (size_t posX = 0; posX < reduceSize; ++posX)
             {
                 float x = input.at(posY * reduceSize + posX);
-         
+                acc = fun(acc, x);
+            }
+            output.at(posY) = acc;
+        }
+
+        for (size_t posY = 0; posY < outSize; ++posY)
+        {
+            for (size_t posX = 0; posX < reduceSize; ++posX)
+            {
+                float x = input.at(posY * reduceSize + posX);
+                float y = output.at(posY);
+                inputGrad.at(posY * reduceSize + posX) =
+                    outputGrad.at(posY) * grad(x, y);
+            }
+        }
+    }
+
+    LayerBuilder getBuilder(const TestCase& testCase)
+    {
+        return [&](const HostVec& ins) {
+            UVec shape = inputShape(testCase);
+            int axes = numAxes(testCase);
+            ITensorPtr in = createInput("in", shape, loc(testCase));
+            ITensorPtr out;
+            switch (std::get<1>(testCase))
+            {
+            case ReduceType::kSUM: out = reduceSum(in, axes); break;
+            case ReduceType::kMAX: out = reduceMax(in, axes); break;
+            case ReduceType::kMIN: out = reduceMin(in, axes); break;
+            }
+            ini
