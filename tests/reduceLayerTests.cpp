@@ -258,4 +258,41 @@ class ReduceBackTest : public LayerTest,
             Layer::SPtr layer =
                 createLayer<ReduceBackGradientLayer>(in, out, outG, axes, op);
             Tensor::SPtr inG = layer->getOutputs()[0];
-            initializeGraph()
+            initializeGraph();
+
+            AbstractTensor::Ptr t = makeAbstractTensor(inG);
+            return HostVec({t->eval({{"in", ins[0]}, {"outG", ins[1]}})});
+        };
+    }
+};
+
+class ReduceFrontTest : public LayerTest,
+                        public testing::WithParamInterface<TestCase>
+{
+  public:
+    void test(const TestCase& testCase)
+    {
+        setup(testCase);
+        LayerBuilder builder = getBuilder(testCase);
+        bool correct = runTest({input}, {output}, builder, 10e-2);
+        EXPECT_TRUE(correct);
+    }
+
+    void testGradient(const TestCase& testCase)
+    {
+        setupGradient(testCase);
+        LayerBuilder builder = getGradientBuilder(testCase);
+        bool correct = runTest({input, outputGrad}, {inputGrad}, builder);
+        EXPECT_TRUE(correct);
+    }
+
+  private:
+    RefTensor input, output, inputGrad, outputGrad;
+
+    UVec outputShape(const TestCase& testCase)
+    {
+        UVec shape = std::get<0>(std::get<0>(testCase));
+        int numAxes = std::get<1>(std::get<0>(testCase));
+        UVec outShape;
+        for (unsigned i = numAxes; i < shape.size(); ++i)
+    
