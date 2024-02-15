@@ -329,4 +329,32 @@ class ReduceFrontTest : public LayerTest,
     void setupGradient(const TestCase& testCase)
     {
         float initalValue = getInitialValue(reduceType(testCase));
-        au
+        auto fun = getReduceOp(reduceType(testCase));
+        auto grad = getReduceOpGrad(reduceType(testCase));
+
+        UVec shape = inputShape(testCase);
+        int axes = numAxes(testCase);
+        size_t outSize = 1, reduceSize = 1;
+        for (int i = 0; i < axes; ++i) reduceSize *= shape[i];
+        for (int i = axes; i < shape.size(); ++i) outSize *= shape[i];
+
+        UniformGen gen(seed);
+        input = RefTensor(shape, gen);
+        output = RefTensor(outputShape(testCase), gen);
+        outputGrad = RefTensor(outputShape(testCase), gen);
+        inputGrad = RefTensor(shape);
+
+        for (size_t posY = 0; posY < outSize; ++posY)
+        {
+            output.at(posY) = initalValue;
+            for (size_t posX = 0; posX < reduceSize; ++posX)
+            {
+                float acc = output.at(posY);
+                float x = input.at(posX * outSize + posY);
+                output.at(posY) = fun(acc, x);
+            }
+        }
+
+        for (size_t posY = 0; posY < outSize; ++posY)
+        {
+            for (size_t posX = 0; 
