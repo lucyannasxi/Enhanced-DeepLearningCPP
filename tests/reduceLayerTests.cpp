@@ -236,4 +236,26 @@ class ReduceBackTest : public LayerTest,
             case ReduceType::kMAX: out = reduceMax(in, axes); break;
             case ReduceType::kMIN: out = reduceMin(in, axes); break;
             }
-            ini
+            initializeGraph();
+
+            return HostVec({out->eval({{"in", ins[0]}})});
+        };
+    }
+
+    LayerBuilder getGradientBuilder(const TestCase& testCase)
+    {
+        return [&](const HostVec& ins) {
+            UVec shape = inputShape(testCase);
+            int axes = numAxes(testCase);
+            ReduceType op = reduceType(testCase);
+            UVec outShape = outputShape(testCase);
+            MemoryType type = memoryLocationToType(loc(testCase));
+            Tensor::SPtr in = core::getDefaultGraph()->addInput(
+                "in", createLayer<InputLayer>("in", shape, type));
+            Tensor::SPtr outG = core::getDefaultGraph()->addInput(
+                "outG", createLayer<InputLayer>("outG", outShape, type));
+            Tensor::SPtr out = core::reduceBack(in, axes, op);
+            Layer::SPtr layer =
+                createLayer<ReduceBackGradientLayer>(in, out, outG, axes, op);
+            Tensor::SPtr inG = layer->getOutputs()[0];
+            initializeGraph()
