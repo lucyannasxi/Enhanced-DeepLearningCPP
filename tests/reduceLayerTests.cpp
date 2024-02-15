@@ -417,4 +417,37 @@ INSTANTIATE_TESTS(
     Combine(ValuesIn(PARAMS), ValuesIn(REDUCE_TYPES), ValuesIn(LOCATIONS))
 );
 
-class ReduceBackGradientT
+class ReduceBackGradientTest : public ReduceBackTest
+{
+};
+TEST_P(ReduceBackGradientTest, testAPI)
+{
+    testGradient(GetParam());
+}
+INSTANTIATE_TESTS(
+    LayerTest, ReduceBackGradientTest,
+    Combine(ValuesIn(PARAMS), ValuesIn(REDUCE_TYPES), ValuesIn(LOCATIONS))
+);
+
+TEST_P(ReduceFrontTest, testAPI)
+{
+    test(GetParam());
+}
+INSTANTIATE_TESTS(
+    LayerTest, ReduceFrontTest,
+    Combine(ValuesIn(PARAMS), ValuesIn(REDUCE_TYPES), ValuesIn(LOCATIONS))
+);
+
+class ReduceFrontGradientTest : public ReduceFrontTest
+{
+};
+TEST_P(ReduceFrontGradientTest, testAPI)
+{
+    testGradient(GetParam());
+}
+INSTANTIATE_TESTS(
+    LayerTest, ReduceFrontGradientTest,
+    Combine(ValuesIn(PARAMS), ValuesIn(REDUCE_TYPES), ValuesIn(LOCATIONS))
+);
+
+}  // namespace
