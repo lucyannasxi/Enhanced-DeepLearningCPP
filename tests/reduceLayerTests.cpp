@@ -295,4 +295,38 @@ class ReduceFrontTest : public LayerTest,
         int numAxes = std::get<1>(std::get<0>(testCase));
         UVec outShape;
         for (unsigned i = numAxes; i < shape.size(); ++i)
-    
+            outShape.push_back(shape[i]);
+
+        return outShape;
+    }
+
+    void setup(const TestCase& testCase)
+    {
+        auto fun = getReduceOp(std::get<1>(testCase));
+        float initalValue = getInitialValue(std::get<1>(testCase));
+
+        UVec shape = inputShape(testCase);
+        int axes = numAxes(testCase);
+        size_t outSize = 1, reduceSize = 1;
+        for (int i = 0; i < axes; ++i) reduceSize *= shape[i];
+        for (int i = axes; i < shape.size(); ++i) outSize *= shape[i];
+
+        UniformGen gen(seed);
+        input = RefTensor(shape, gen);
+        output = RefTensor(outputShape(testCase));
+        for (size_t posY = 0; posY < outSize; ++posY)
+        {
+            output.at(posY) = initalValue;
+            for (size_t posX = 0; posX < reduceSize; ++posX)
+            {
+                float acc = output.at(posY);
+                float x = input.at(posX * outSize + posY);
+                output.at(posY) = fun(acc, x);
+            }
+        }
+    }
+
+    void setupGradient(const TestCase& testCase)
+    {
+        float initalValue = getInitialValue(reduceType(testCase));
+        au
