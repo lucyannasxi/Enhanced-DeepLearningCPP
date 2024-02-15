@@ -357,4 +357,34 @@ class ReduceFrontTest : public LayerTest,
 
         for (size_t posY = 0; posY < outSize; ++posY)
         {
-            for (size_t posX = 0; 
+            for (size_t posX = 0; posX < reduceSize; ++posX)
+            {
+                float x = input.at(posX * outSize + posY);
+                float y = output.at(posY);
+                inputGrad.at(posX * outSize + posY) =
+                    outputGrad.at(posY) * grad(x, y);
+            }
+        }
+    }
+
+    LayerBuilder getBuilder(const TestCase& testCase)
+    {
+        return [&](const HostVec& ins) {
+            UVec shape = inputShape(testCase);
+            int axes = numAxes(testCase);
+            ReduceType op = reduceType(testCase);
+            MemoryType type = memoryLocationToType(loc(testCase));
+            Tensor::SPtr in = core::getDefaultGraph()->addInput(
+                "in", createLayer<InputLayer>("in", shape, type));
+            Tensor::SPtr out = core::reduceFront(in, axes, op);
+            initializeGraph();
+
+            AbstractTensor::Ptr t = makeAbstractTensor(out);
+            return HostVec({t->eval({{"in", ins[0]}})});
+        };
+    }
+
+    LayerBuilder getGradientBuilder(const TestCase& testCase)
+    {
+        return [&](const HostVec& ins) {
+            UVec shape = inputShape
