@@ -387,4 +387,34 @@ class ReduceFrontTest : public LayerTest,
     LayerBuilder getGradientBuilder(const TestCase& testCase)
     {
         return [&](const HostVec& ins) {
-            UVec shape = inputShape
+            UVec shape = inputShape(testCase);
+            UVec outShape = outputShape(testCase);
+            int axes = numAxes(testCase);
+            ReduceType op = reduceType(testCase);
+            MemoryType type = memoryLocationToType(loc(testCase));
+            Tensor::SPtr in = core::getDefaultGraph()->addInput(
+                "in", createLayer<InputLayer>("in", shape, type));
+            Tensor::SPtr outG = core::getDefaultGraph()->addInput(
+                "outG", createLayer<InputLayer>("outG", outShape, type));
+            Tensor::SPtr out = core::reduceFront(in, axes, op);
+            Layer::SPtr layer =
+                createLayer<ReduceFrontGradientLayer>(in, out, outG, axes, op);
+            Tensor::SPtr inG = layer->getOutputs()[0];
+            initializeGraph();
+
+            AbstractTensor::Ptr t = makeAbstractTensor(inG);
+            return HostVec({t->eval({{"in", ins[0]}, {"outG", ins[1]}})});
+        };
+    }
+};
+
+TEST_P(ReduceBackTest, testAPI)
+{
+    test(GetParam());
+}
+INSTANTIATE_TESTS(
+    LayerTest, ReduceBackTest,
+    Combine(ValuesIn(PARAMS), ValuesIn(REDUCE_TYPES), ValuesIn(LOCATIONS))
+);
+
+class ReduceBackGradientT
