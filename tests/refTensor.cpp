@@ -61,4 +61,65 @@ Coord_iterator Coord_iterator::operator++()
             mCoord[p--] = 0;
             ++mCoord[p];
         }
-        e
+        else
+            break;
+    }
+
+    return it;
+}
+
+Coord_iterator Coord_iterator::operator++(int junk)
+{
+    unsigned p = mCoord.size() - 1;
+    mCoord[p]++;
+    while (p > 0)
+    {
+        if (mCoord[p] == mShape[p])
+        {
+            mCoord[p--] = 0;
+            ++mCoord[p];
+        }
+        else
+            break;
+    }
+
+    return *this;
+}
+
+bool Coord_iterator::operator==(const Coord_iterator& it) const
+{
+    if (mCoord.size() != it.mCoord.size()) return false;
+
+    for (unsigned i = 0; i < mCoord.size(); ++i)
+        if (mCoord[i] != it.mCoord[i]) return false;
+
+    return true;
+}
+
+bool Coord_iterator::operator!=(const Coord_iterator& it) const
+{
+    return !operator==(it);
+}
+
+Coord& Coord_iterator::operator()()
+{
+    return mCoord;
+}
+
+int& Coord_iterator::operator[](size_t pos)
+{
+    return mCoord[pos];
+}
+
+const int& Coord_iterator::operator[](size_t pos) const
+{
+    return mCoord[pos];
+}
+
+bool isInside(const Coord& c, const TensorShape& shape)
+{
+    assert(c.size() == shape.size());
+
+    for (unsigned i = 0; i < c.size(); ++i)
+        if (c[i] < 0 || c[i] >= int(shape[i])) return false;
+  
