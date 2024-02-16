@@ -172,4 +172,64 @@ const float& RefTensor::operator[](const Coord& c) const
     {
         assert(int(mShape[i]) > c[i]);
         pos *= mShape[i];
-        pos +=
+        pos += c[i];
+    }
+    return at(pos);
+}
+
+Coord RefTensor::coordAt(size_t pos) const
+{
+    Coord c(std::vector<int>(mShape.size()));
+
+    for (int i = mShape.size() - 1; i >= 0; --i)
+    {
+        c[i] = pos % mShape[i];
+        pos /= mShape[i];
+    }
+
+    return c;
+}
+
+Coord_iterator RefTensor::begin()
+{
+    return shapeBegin(mShape);
+}
+
+Coord_iterator RefTensor::end()
+{
+    return shapeEnd(mShape);
+}
+
+std::size_t RefTensor::getCount() const
+{
+    return mCount;
+}
+
+TensorShape RefTensor::shape() const
+{
+    return mShape;
+}
+
+void RefTensor::fillRandomly(RandGen& gen)
+{
+    for (std::size_t i = 0; i < mCount; ++i)
+    {
+        at(i) = gen();
+    }
+}
+
+HostTensor RefTensor::toHostTensor()
+{
+    HostTensor t(mCount);
+
+    for (std::size_t i = 0; i < mCount; ++i) t[i] = mValues[i];
+    return t;
+}
+
+RefTensor RefTensor::slice(Coord start, const TensorShape& shape) const
+{
+    RefTensor tensor(shape);
+
+    for (Coord_iterator it = tensor.begin(); it != tensor.end(); ++it)
+    {
+        if (isInside(start 
