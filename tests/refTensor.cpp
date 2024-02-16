@@ -122,4 +122,54 @@ bool isInside(const Coord& c, const TensorShape& shape)
 
     for (unsigned i = 0; i < c.size(); ++i)
         if (c[i] < 0 || c[i] >= int(shape[i])) return false;
-  
+    return true;
+}
+
+RefTensor::RefTensor() : mValues(0), mCount(0), mShape({}) {}
+
+RefTensor::RefTensor(const TensorShape& shape)
+    : mValues(shape.getCount(), 0.), mCount(shape.getCount()), mShape(shape)
+{
+}
+
+RefTensor::RefTensor(const TensorShape& shape, RandGen& gen) : RefTensor(shape)
+{
+    fillRandomly(gen);
+}
+
+float& RefTensor::at(std::size_t pos)
+{
+    assert(pos < mValues.size());
+    return mValues[pos];
+}
+
+const float& RefTensor::at(std::size_t pos) const
+{
+    assert(pos < mValues.size());
+    return mValues[pos];
+}
+
+float& RefTensor::operator[](const Coord& c)
+{
+    assert(mShape.size() == c.size());
+
+    std::size_t pos = 0;
+    for (std::size_t i = 0; i < c.size(); ++i)
+    {
+        assert(int(mShape[i]) > c[i]);
+        pos *= mShape[i];
+        pos += c[i];
+    }
+    return at(pos);
+}
+
+const float& RefTensor::operator[](const Coord& c) const
+{
+    assert(mShape.size() == c.size());
+
+    std::size_t pos = 0;
+    for (std::size_t i = 0; i < c.size(); ++i)
+    {
+        assert(int(mShape[i]) > c[i]);
+        pos *= mShape[i];
+        pos +=
