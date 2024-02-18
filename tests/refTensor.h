@@ -91,4 +91,23 @@ class RefTensor
     TensorShape shape() const;
 
     //! \fn fillRandomly
-    void fillRandom
+    void fillRandomly(RandGen& gen);
+
+    //! \fn toHostTensor
+    HostTensor toHostTensor();
+
+  private:
+    std::vector<float> mValues;
+    std::size_t mCount;
+    TensorShape mShape;
+};
+
+Coord_iterator shapeBegin(const TensorShape& shape);
+
+Coord_iterator shapeEnd(const TensorShape& shape);
+
+std::ostream& operator<<(std::ostream&, const RefTensor& t);
+
+std::ostream& operator<<(std::ostream&, const Coord& c);
+
+#endif  // TESTS_REF_TENSOR_H_
