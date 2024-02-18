@@ -43,4 +43,52 @@ class Coord_iterator
     Coord_iterator operator++(int junk);
 
     bool operator==(const Coord_iterator& it) const;
-    bool operator!=(const Coord_i
+    bool operator!=(const Coord_iterator& it) const;
+
+    Coord& operator()();
+
+    int& operator[](size_t pos);
+    const int& operator[](size_t pos) const;
+
+  private:
+    Coord mCoord;
+    Coord mShape;
+};
+
+//! \brief Tests whether coordinate is inside shape
+bool isInside(const Coord& c, const TensorShape& shape);
+
+class RefTensor
+{
+  public:
+    RefTensor();
+    RefTensor(const TensorShape& shape);
+    RefTensor(const TensorShape& shape, RandGen& gen);
+
+    //! \fn at
+    //! \brief Returns value given its linear coordinate.
+    //!
+    float& at(size_t pos);
+    const float& at(size_t pos) const;
+
+    //! \fn operator []
+    //! \brief Return value given its multidimensional coordinate.
+    //!
+    float& operator[](const Coord& c);
+    const float& operator[](const Coord& c) const;
+
+    Coord coordAt(size_t pos) const;
+
+    Coord_iterator begin();
+    Coord_iterator end();
+
+    RefTensor slice(Coord start, const TensorShape& shape) const;
+
+    //! \fn getCount
+    std::size_t getCount() const;
+
+    //! \fn shape
+    TensorShape shape() const;
+
+    //! \fn fillRandomly
+    void fillRandom
