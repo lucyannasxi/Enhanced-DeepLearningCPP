@@ -276,4 +276,5 @@ Coord_iterator shapeEnd(const TensorShape& shape)
         s.push_back(shape[i]);
     }
     c[0] = shape[0];
-    return Coord_iterator(Coord(c), C
+    return Coord_iterator(Coord(c), Coord(s));
+}
